@@ -1,8 +1,8 @@
-package com.zendesk.datasearcher.entity;
+package com.zendesk.datasearcher.model.entity;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Tickets extends AbstractEntity {
+public class Ticket extends AbstractEntity {
     private String type;
     private String subject;
     private String description;
@@ -109,24 +109,31 @@ public class Tickets extends AbstractEntity {
     }
 
     @Override
+    public String getSummary() {
+        StringBuilder summary = new StringBuilder();
+        summary.append("Subject: ").append(subject).append("\n")
+                .append("Description: ").append(description).append("\n")
+                .append("Url: ").append(url);
+        return summary.toString();
+    }
+
+    @Override
     public String toString() {
-        return "Tickets{" +
-                "_id='" + id + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", tags=" + tags +
-                ", externalId='" + externalId + '\'' +
-                ", url='" + url + '\'' +
-                ", type='" + type + '\'' +
-                ", subject='" + subject + '\'' +
-                ", description='" + description + '\'' +
-                ", priority='" + priority + '\'' +
-                ", status='" + status + '\'' +
-                ", submitterId='" + submitterId + '\'' +
-                ", assigneeId='" + assigneeId + '\'' +
-                ", hasIncidents=" + hasIncidents +
-                ", dueAt='" + dueAt + '\'' +
-                ", via='" + via + '\'' +
-                ", organizationId='" + organizationId + '\'' +
-                '}';
+        return "_id: " + id + "\n" +
+                "created_at: " + createdAt + "\n" +
+                "tags: " + tags + "\n" +
+                "external_id: " + externalId + "\n" +
+                "url: " + url + "\n" +
+                "type: " + type + "\n" +
+                "subject: " + subject + "\n" +
+                "description: " + description + "\n" +
+                "priority: " + priority + "\n" +
+                "status: " + status + "\n" +
+                "submitter_id: " + submitterId + "\n" +
+                "assignee_id: " + assigneeId + "\n" +
+                "has_incidents=" + hasIncidents + "\n" +
+                "due_at: " + dueAt + "\n" +
+                "via: " + via + "\n" +
+                "organization_id: " + organizationId;
     }
 }

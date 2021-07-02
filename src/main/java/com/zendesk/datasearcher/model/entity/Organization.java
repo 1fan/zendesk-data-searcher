@@ -1,10 +1,10 @@
-package com.zendesk.datasearcher.entity;
+package com.zendesk.datasearcher.model.entity;
 
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Organizations extends AbstractEntity {
+public class Organization extends AbstractEntity {
 
     private String name;
     @SerializedName("domain_names")
@@ -54,17 +54,24 @@ public class Organizations extends AbstractEntity {
     }
 
     @Override
+    public String getSummary() {
+        StringBuilder summary = new StringBuilder();
+        summary.append("Name: ").append(name).append("\n")
+                .append("Details: ").append(details).append("\n")
+                .append("Url: ").append(url);
+        return summary.toString();
+    }
+
+    @Override
     public String toString() {
-        return "Organizations{" +
-                "_id='" + id + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", tags=" + tags +
-                ", externalId='" + externalId + '\'' +
-                ", url='" + url + '\'' +
-                ", name='" + name + '\'' +
-                ", domainNames=" + domainNames +
-                ", details='" + details + '\'' +
-                ", sharedTickets=" + sharedTickets +
-                '}';
+        return "id: '" + id + "\n" +
+                "created_at: '" + createdAt + "\n" +
+                "tags: " + tags + "\n" +
+                "external_id: '" + externalId + "\n" +
+                "url: '" + url + "\n" +
+                "name: '" + name + "\n" +
+                "domain_names: " + domainNames + "\n" +
+                "details: '" + details + "\n" +
+                "shared_tickets: " + sharedTickets;
     }
 }

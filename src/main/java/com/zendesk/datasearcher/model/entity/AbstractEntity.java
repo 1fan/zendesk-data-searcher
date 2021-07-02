@@ -1,10 +1,10 @@
-package com.zendesk.datasearcher.entity;
+package com.zendesk.datasearcher.model.entity;
 
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AbstractEntity {
+public abstract class AbstractEntity {
     @SerializedName("_id")
     protected String id;
 
@@ -55,4 +55,6 @@ public class AbstractEntity {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public abstract String getSummary();
 }

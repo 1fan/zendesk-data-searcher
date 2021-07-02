@@ -1,23 +1,17 @@
 package com.zendesk.datasearcher.processor;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.zendesk.datasearcher.entity.AbstractEntity;
-import com.zendesk.datasearcher.entity.Organizations;
-import com.zendesk.datasearcher.entity.Tickets;
-import com.zendesk.datasearcher.entity.Users;
-import com.zendesk.datasearcher.util.FieldsUtil;
-import com.zendesk.datasearcher.util.JsonFileReader;
-import org.apache.commons.lang3.reflect.FieldUtils;
+import com.zendesk.datasearcher.model.entity.Organization;
+import com.zendesk.datasearcher.model.entity.Ticket;
+import com.zendesk.datasearcher.model.entity.User;
+import com.zendesk.datasearcher.model.response.OrganizationResponse;
+import com.zendesk.datasearcher.model.response.TicketResponse;
+import com.zendesk.datasearcher.model.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,205 +20,86 @@ public class Processor {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private Environment env;
+    private InvertedIndex invertedIndex;
 
-    @Autowired
-    private FieldsUtil fieldsUtil;
-
-    @Autowired
-    private JsonFileReader jsonReader;
-    private Map<String, Map<String, List<Integer>>> usersIndex = null;
-    private Map<String, Map<String, List<Integer>>> ticketsIndex = null;
-    private Map<String, Map<String, List<Integer>>> organizationsIndex = null;
-    private List<Users> users = null;
-    private List<Tickets> tickets = null;
-    private List<Organizations> organizations = null;
-
-    public void searchByTickets(String searchTerm, String searchValue) throws IOException {
-        List<Tickets> tickets = lookUpTickets(searchTerm, searchValue);
+    public List<TicketResponse> searchByTickets(String searchTerm, String searchValue) throws Exception {
+        List<TicketResponse> ticketResponses = new ArrayList<>();
+        List<Ticket> tickets = invertedIndex.lookUpTickets(searchTerm, searchValue);
         if (tickets == null || tickets.size() == 0) {
             //not found
-            System.out.println("No available data for searched term and value.");
+            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
         } else {
             //found
-            System.out.println(String.format("Found %d Tickets whose %s is %s:", tickets.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
-            for (Tickets ticket : tickets) {
-                System.out.println("**************************************");
-                System.out.println(ticket);
-                System.out.println("---------------");
-                System.out.println(String.format("Related Organizations whose _id is : %s", ticket.getOrganizationId()));
-                for (Organizations org : lookUpOrganizations("id", ticket.getOrganizationId())) {
-                    System.out.println(org.toString());
+            logger.info(String.format("Found %d Tickets whose %s is '%s':", tickets.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            for (Ticket ticket : tickets) {
+                TicketResponse ticketRsp = new TicketResponse();
+                ticketRsp.setTicket(ticket);
+                List<Organization> orgs = invertedIndex.lookUpOrganizations("id", ticket.getOrganizationId());
+                if(orgs != null) {
+                    //since we are searching by ID, there should be only 1 org
+                    ticketRsp.setTicketOrganization(orgs.get(0));
                 }
-                System.out.println("---------------");
-                System.out.println(String.format("Related Users whose assignee_id is %s: ", ticket.getAssigneeId()));
-                for (Users users : lookUpUser("id", ticket.getAssigneeId())) {
-                    System.out.println(users.toString());
+                List<User> assignees = invertedIndex.lookUpUser("id", ticket.getAssigneeId());
+                if(assignees != null) {
+                    //since we are searching by ID, there should be only 1 org
+                    ticketRsp.setAssignee(assignees.get(0));
                 }
-                System.out.println("---------------");
-                System.out.println(String.format("Related Users whose submitter_id is %s: ", ticket.getSubmitterId()));
-                for (Users users : lookUpUser("id", ticket.getSubmitterId())) {
-                    System.out.println(users.toString());
+
+                List<User> submitters = invertedIndex.lookUpUser("id", ticket.getSubmitterId());
+                if(submitters != null) {
+                    ticketRsp.setSubmitter(submitters.get(0));
                 }
-                System.out.println();
+                ticketResponses.add(ticketRsp);
             }
         }
+        return ticketResponses;
     }
 
-    public void searchByOrganizations(String searchTerm, String searchValue) throws Exception {
-        List<Organizations> organizations = lookUpOrganizations(searchTerm, searchValue);
+    public List<OrganizationResponse> searchByOrganizations(String searchTerm, String searchValue) throws Exception {
+        List<OrganizationResponse> orgResponses = new ArrayList<>();
+
+        List<Organization> organizations = invertedIndex.lookUpOrganizations(searchTerm, searchValue);
         if (organizations == null || organizations.size() == 0) {
             //not found
-            System.out.println("No available data for searched term and value.");
+            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
         } else {
             //found
-            System.out.println(String.format("Found %d Organizations whose %s is %s:", organizations.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
-            for (Organizations org : organizations) {
-                System.out.println("**************************************");
-                System.out.println(org);
-                System.out.println("---------------");
-                System.out.println(String.format("Related Users whose organization_id is %s:", org.getId()));
-                List<Users> relatedUsers = lookUpUser("organizationId", org.getId());
-                for (Users user : relatedUsers) {
-                    System.out.println(user.toString());
-                }
-                System.out.println("---------------");
-                List<Tickets> relatedTickets = lookUpTickets("organizationId", org.getId());
-                System.out.println(String.format("Related Tickets whose organization_id is %s: ", org.getId()));
-                for (Tickets ticket : relatedTickets) {
-                    System.out.println(ticket.toString());
-                }
-                System.out.println();
+            logger.info(String.format("Found %d Organizations whose %s is %s:", organizations.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            for (Organization org : organizations) {
+                OrganizationResponse orgRsp = new OrganizationResponse();
+                orgRsp.setOrganization(org);
+                orgRsp.setOrgUsers(invertedIndex.lookUpUser("organizationId", org.getId()));
+                orgRsp.setOrgTickets(invertedIndex.lookUpTickets("organizationId", org.getId()));
+                orgResponses.add(orgRsp);
             }
         }
+        return orgResponses;
     }
 
-    /**
-     * todo:
-     * 1) build the inverse index for the search dataset
-     * 2) search the searchValue from the index:
-     * if not found, print not found.
-     * if found, get the related object;
-     * 3) search the related other dataset
-     */
-    public void searchByUsers(String searchTerm, String searchValue) throws IOException {
-        List<Users> users = lookUpUser(searchTerm, searchValue);
+    public List<UserResponse> searchByUsers(String searchTerm, String searchValue) throws Exception {
+        List<UserResponse> userResponses = new ArrayList<>();
+
+        List<User> users = invertedIndex.lookUpUser(searchTerm, searchValue);
         if (users == null || users.size() == 0) {
             //not found
-            System.out.println("No available data for searched term and value.");
+            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
         } else {
             //found
-            System.out.println(String.format("Found %d Users whose %s is %s:", users.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
-            for (Users user : users) {
-                System.out.println("**************************************");
-                System.out.println(user);
-                System.out.println("---------------");
-                List<Organizations> relatedOrgs = lookUpOrganizations("id", user.getOrganizationId());
-                System.out.println(String.format("Related Organizations whose _id is %s:", user.getOrganizationId()));
-                for (Organizations org : relatedOrgs) {
-                    System.out.println(org.toString());
+            logger.info(String.format("Found %d Users whose %s is %s:", users.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            for (User user : users) {
+                UserResponse userResponse = new UserResponse();
+                userResponse.setUser(user);
+                List<Organization> relatedOrg = invertedIndex.lookUpOrganizations("id", user.getOrganizationId());
+                if (relatedOrg != null) {
+                    //since we are searching on ID, there should be only 1 or 0 organization.
+                    userResponse.setUserOrganization(relatedOrg.get(0));
                 }
-                System.out.println("---------------");
-                System.out.println(String.format("Related Tickets whose submitter_id is %s:", user.getId()));
-                for (Tickets relatedTicket : lookUpTickets("submitterId", user.getId())) {
-                    System.out.println(relatedTicket.toString());
-                }
-                System.out.println("---------------");
-                System.out.println(String.format("Related Tickets whose assignee_id is %s:", user.getId()));
-                for (Tickets relatedTicket : lookUpTickets("assigneeId", user.getId())) {
-                    System.out.println(relatedTicket.toString());
-                }
-                System.out.println();
+                userResponse.setSubmittedTickets(invertedIndex.lookUpTickets("submitterId", user.getId()));
+                userResponse.setAssignedTickets(invertedIndex.lookUpTickets("assigneeId", user.getId()));
+                userResponses.add(userResponse);
             }
         }
-    }
-
-    public List<Users> lookUpUser(String term, String value) throws IOException {
-        if (this.usersIndex == null) {
-            //read the file of searchDataSet and build invert index
-            String usersFilePath = env.getProperty("users.filepath", "users.json");
-            this.users = jsonReader.parseJson(usersFilePath, Users.class);
-            this.usersIndex = buildIndex(users, Users.class);
-        }
-
-        return lookUpValueFromIndex(usersIndex, users, term, value);
-    }
-
-    public List<Tickets> lookUpTickets(String term, String value) throws IOException {
-        if (this.ticketsIndex == null) {
-            //read the file of searchDataSet and build invert index
-            String ticketsFilePath = env.getProperty("tickets.filepath", "tickets.json");
-            this.tickets = jsonReader.parseJson(ticketsFilePath, Tickets.class);
-            this.ticketsIndex = buildIndex(tickets, Tickets.class);
-        }
-
-        return lookUpValueFromIndex(ticketsIndex, tickets, term, value);
-    }
-
-    public List<Organizations> lookUpOrganizations(String term, String value) throws IOException {
-        if (this.organizationsIndex == null) {
-            //read the file of searchDataSet and build invert index
-            String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
-            this.organizations = jsonReader.parseJson(organizationsFilePath, Organizations.class);
-            this.organizationsIndex = buildIndex(organizations, Organizations.class);
-        }
-        return lookUpValueFromIndex(organizationsIndex, organizations, term, value);
-    }
-
-    private <T extends AbstractEntity> List<T> lookUpValueFromIndex(Map<String, Map<String, List<Integer>>> index, List<T> items, String searchTerm, String searchValue) {
-        List<T> lookUpResult = new ArrayList<>();
-        if (index.get(searchTerm) != null && index.get(searchTerm).size() != 0) {
-            List<Integer> searchValueOccurance = index.get(searchTerm).get(searchValue);
-            if (searchValueOccurance != null && searchValueOccurance.size() != 0) {
-                for (Integer i : searchValueOccurance) {
-                    lookUpResult.add(items.get(i));
-                }
-            }
-        }
-        return lookUpResult;
-    }
-
-
-    private <T extends AbstractEntity> Map<String, Map<String, List<Integer>>> buildIndex(List<T> elements, Class<T> clazz) {
-        Map<String, Map<String, List<Integer>>> index = new HashMap<>();
-        for (int i = 0; i < elements.size(); i++) {
-            T element = elements.get(i);
-            List<Field> fields = fieldsUtil.getFieldsOfClass(clazz);
-            for (Field field : fields) {
-                Map<String, List<Integer>> termStat = index.getOrDefault(field.getName(), new HashMap<String, List<Integer>>());
-                try {
-                    Object fieldValue = FieldUtils.readField(field, element, true);
-                    if (fieldValue instanceof String) {
-                        List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                        valueOccurance.add(i);
-                        termStat.put((String) fieldValue, valueOccurance);
-                    } else if (fieldValue instanceof Boolean) {
-                        fieldValue = fieldValue.toString();
-                        List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                        valueOccurance.add(i);
-                        termStat.put(fieldValue.toString(), valueOccurance);
-                    } else if (fieldValue instanceof List) {
-                        //could be tags, etc
-                        for (String s : (List<String>) fieldValue) {
-                            List<Integer> valueOccurance = termStat.getOrDefault(s, new ArrayList<>());
-                            valueOccurance.add(i);
-                            termStat.put(s, valueOccurance);
-                        }
-                    } else if (fieldValue == null) {
-                        fieldValue = "";
-                        List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                        valueOccurance.add(i);
-                        termStat.put(fieldValue.toString(), valueOccurance);
-                    }
-
-                    index.put(field.getName(), termStat);
-                } catch (Exception e) {
-                    //todo: handle exception
-                    e.printStackTrace();
-                }
-            }
-        }
-        return index;
+        return userResponses;
     }
 
 }

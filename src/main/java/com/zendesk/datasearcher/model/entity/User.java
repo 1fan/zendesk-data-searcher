@@ -1,8 +1,8 @@
-package com.zendesk.datasearcher.entity;
+package com.zendesk.datasearcher.model.entity;
 
 import com.google.gson.annotations.SerializedName;
 
-public class Users extends AbstractEntity {
+public class User extends AbstractEntity {
 
     private String name;
     private String alias;
@@ -134,27 +134,34 @@ public class Users extends AbstractEntity {
     }
 
     @Override
+    public String getSummary() {
+        StringBuilder summary = new StringBuilder();
+        summary.append("Name: ").append(name).append("\n")
+                .append("Alias: ").append(alias).append("\n")
+                .append("Url: ").append(url);
+        return summary.toString();
+    }
+
+    @Override
     public String toString() {
-        return "Users{" +
-                "_id='" + id + '\'' +
-                ", url='" + url + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", tags=" + tags +
-                ", externalId='" + externalId + '\'' +
-                ", name='" + name + '\'' +
-                ", alias='" + alias + '\'' +
-                ", active=" + active +
-                ", verified=" + verified +
-                ", shared=" + shared +
-                ", locale='" + locale + '\'' +
-                ", timezone='" + timezone + '\'' +
-                ", lastLoginAt='" + lastLoginAt + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", signature='" + signature + '\'' +
-                ", organizationId='" + organizationId + '\'' +
-                ", suspended=" + suspended +
-                ", role='" + role + '\'' +
-                '}';
+        return "id: " + id + "\n" +
+                "created_at: " + createdAt + "\n" +
+                "tags: " + tags + "\n" +
+                "external_id: " + externalId + "\n" +
+                "url: " + url + "\n" +
+                "name: " + name + "\n" +
+                "alias: " + alias + "\n" +
+                "active: " + active + "\n" +
+                "verified: " + verified + "\n" +
+                "shared: " + shared + "\n" +
+                "locale: " + locale + "\n" +
+                "timezone: " + timezone + "\n" +
+                "last_login_at: " + lastLoginAt + "\n" +
+                "email: " + email + "\n" +
+                "phone: " + phone + "\n" +
+                "signature: " + signature + "\n" +
+                "organization_id: " + organizationId + "\n" +
+                "suspended: " + suspended + "\n" +
+                "role: " + role;
     }
 }
