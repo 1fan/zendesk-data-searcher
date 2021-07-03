@@ -164,4 +164,80 @@ public class User extends AbstractEntity {
                 "suspended: " + suspended + "\n" +
                 "role: " + role;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        User user = (User) o;
+
+        if (isActive() != user.isActive()) {
+            return false;
+        }
+        if (isVerified() != user.isVerified()) {
+            return false;
+        }
+        if (isShared() != user.isShared()) {
+            return false;
+        }
+        if (isSuspended() != user.isSuspended()) {
+            return false;
+        }
+        if (getName() != null ? !getName().equals(user.getName()) : user.getName() != null) {
+            return false;
+        }
+        if (getAlias() != null ? !getAlias().equals(user.getAlias()) : user.getAlias() != null) {
+            return false;
+        }
+        if (getLocale() != null ? !getLocale().equals(user.getLocale()) : user.getLocale() != null) {
+            return false;
+        }
+        if (getTimezone() != null ? !getTimezone().equals(user.getTimezone()) : user.getTimezone() != null) {
+            return false;
+        }
+        if (getLastLoginAt() != null ? !getLastLoginAt().equals(user.getLastLoginAt()) : user.getLastLoginAt() != null) {
+            return false;
+        }
+        if (getEmail() != null ? !getEmail().equals(user.getEmail()) : user.getEmail() != null) {
+            return false;
+        }
+        if (getPhone() != null ? !getPhone().equals(user.getPhone()) : user.getPhone() != null) {
+            return false;
+        }
+        if (getSignature() != null ? !getSignature().equals(user.getSignature()) : user.getSignature() != null) {
+            return false;
+        }
+        if (getOrganizationId() != null ? !getOrganizationId().equals(user.getOrganizationId()) : user.getOrganizationId() != null) {
+            return false;
+        }
+        return getRole() != null ? getRole().equals(user.getRole()) : user.getRole() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getAlias() != null ? getAlias().hashCode() : 0);
+        result = 31 * result + (isActive() ? 1 : 0);
+        result = 31 * result + (isVerified() ? 1 : 0);
+        result = 31 * result + (isShared() ? 1 : 0);
+        result = 31 * result + (getLocale() != null ? getLocale().hashCode() : 0);
+        result = 31 * result + (getTimezone() != null ? getTimezone().hashCode() : 0);
+        result = 31 * result + (getLastLoginAt() != null ? getLastLoginAt().hashCode() : 0);
+        result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
+        result = 31 * result + (getPhone() != null ? getPhone().hashCode() : 0);
+        result = 31 * result + (getSignature() != null ? getSignature().hashCode() : 0);
+        result = 31 * result + (getOrganizationId() != null ? getOrganizationId().hashCode() : 0);
+        result = 31 * result + (isSuspended() ? 1 : 0);
+        result = 31 * result + (getRole() != null ? getRole().hashCode() : 0);
+        return result;
+    }
 }

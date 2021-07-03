@@ -57,4 +57,40 @@ public abstract class AbstractEntity {
     }
 
     public abstract String getSummary();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AbstractEntity)) {
+            return false;
+        }
+
+        AbstractEntity that = (AbstractEntity) o;
+
+        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
+            return false;
+        }
+        if (getCreatedAt() != null ? !getCreatedAt().equals(that.getCreatedAt()) : that.getCreatedAt() != null) {
+            return false;
+        }
+        if (getTags() != null ? !getTags().equals(that.getTags()) : that.getTags() != null) {
+            return false;
+        }
+        if (getExternalId() != null ? !getExternalId().equals(that.getExternalId()) : that.getExternalId() != null) {
+            return false;
+        }
+        return getUrl() != null ? getUrl().equals(that.getUrl()) : that.getUrl() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getCreatedAt() != null ? getCreatedAt().hashCode() : 0);
+        result = 31 * result + (getTags() != null ? getTags().hashCode() : 0);
+        result = 31 * result + (getExternalId() != null ? getExternalId().hashCode() : 0);
+        result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
+        return result;
+    }
 }

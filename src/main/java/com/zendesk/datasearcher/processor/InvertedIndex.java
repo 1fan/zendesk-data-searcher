@@ -30,6 +30,18 @@ public class InvertedIndex {
     @Autowired
     private JsonFileReader jsonReader;
 
+    public void setEnv(Environment env) {
+        this.env = env;
+    }
+
+    public void setFieldUtil(FieldUtil fieldUtil) {
+        this.fieldUtil = fieldUtil;
+    }
+
+    public void setJsonReader(JsonFileReader jsonReader) {
+        this.jsonReader = jsonReader;
+    }
+
     private Map<String, Map<String, List<Integer>>> usersIndex = null;
     private Map<String, Map<String, List<Integer>>> ticketsIndex = null;
     private Map<String, Map<String, List<Integer>>> organizationsIndex = null;
