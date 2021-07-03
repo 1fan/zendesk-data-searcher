@@ -1,8 +1,10 @@
 package com.zendesk.datasearcher.processor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zendesk.datasearcher.exception.InvalidFieldException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
@@ -22,7 +24,7 @@ public class Processor {
     @Autowired
     private InvertedIndex invertedIndex;
 
-    public List<TicketResponse> searchByTickets(String searchTerm, String searchValue) throws Exception {
+    public List<TicketResponse> searchByTickets(String searchTerm, String searchValue) throws IOException, InvalidFieldException {
         List<TicketResponse> ticketResponses = new ArrayList<>();
         List<Ticket> tickets = invertedIndex.lookUpTickets(searchTerm, searchValue);
         if (tickets == null || tickets.size() == 0) {
@@ -55,7 +57,7 @@ public class Processor {
         return ticketResponses;
     }
 
-    public List<OrganizationResponse> searchByOrganizations(String searchTerm, String searchValue) throws Exception {
+    public List<OrganizationResponse> searchByOrganizations(String searchTerm, String searchValue) throws IOException, InvalidFieldException {
         List<OrganizationResponse> orgResponses = new ArrayList<>();
 
         List<Organization> organizations = invertedIndex.lookUpOrganizations(searchTerm, searchValue);
@@ -76,16 +78,16 @@ public class Processor {
         return orgResponses;
     }
 
-    public List<UserResponse> searchByUsers(String searchTerm, String searchValue) throws Exception {
+    public List<UserResponse> searchByUsers(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<UserResponse> userResponses = new ArrayList<>();
 
-        List<User> users = invertedIndex.lookUpUser(searchTerm, searchValue);
+        List<User> users = invertedIndex.lookUpUser(fieldName, fieldValue);
         if (users == null || users.size() == 0) {
             //not found
-            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
+            logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
         } else {
             //found
-            logger.info(String.format("Found %d Users whose %s is %s:", users.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            logger.info(String.format("Found %d Users whose %s is %s:", users.size(), fieldName, "".equals(fieldValue) ? "empty" : fieldValue));
             for (User user : users) {
                 UserResponse userResponse = new UserResponse();
                 userResponse.setUser(user);

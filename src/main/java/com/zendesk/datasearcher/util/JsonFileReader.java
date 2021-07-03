@@ -1,5 +1,6 @@
 package com.zendesk.datasearcher.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class JsonFileReader {
         return classLoader.getResourceAsStream(fileName);
     }
 
-    public <T extends AbstractEntity> List<T> parseJson(String path, Class<T> clazz) throws Exception {
+    public <T extends AbstractEntity> List<T> parseJson(String path, Class<T> clazz) throws IOException {
         List<T> elements = new ArrayList<>();
         try (
                 InputStream inputStream = getResourceFileAsInputStream(path);

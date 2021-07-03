@@ -1,5 +1,6 @@
 package com.zendesk.datasearcher.processor;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +12,8 @@ import com.zendesk.datasearcher.model.entity.AbstractEntity;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
-import com.zendesk.datasearcher.util.FieldsUtil;
+import com.zendesk.datasearcher.util.FieldUtil;
 import com.zendesk.datasearcher.util.JsonFileReader;
-import org.apache.commons.text.CaseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class InvertedIndex {
     private Environment env;
 
     @Autowired
-    private FieldsUtil fieldsUtil;
+    private FieldUtil fieldUtil;
 
     @Autowired
     private JsonFileReader jsonReader;
@@ -37,7 +37,7 @@ public class InvertedIndex {
     private List<Ticket> tickets = null;
     private List<Organization> organizations = null;
 
-    public List<User> lookUpUser(String term, String value) throws Exception {
+    public List<User> lookUpUser(String term, String value) throws IOException, InvalidFieldException {
         if (this.usersIndex == null) {
             String usersFilePath = env.getProperty("users.filepath", "users.json");
             this.users = jsonReader.parseJson(usersFilePath, User.class);
@@ -47,7 +47,7 @@ public class InvertedIndex {
         return lookUpValueFromIndex(usersIndex, users, term, value);
     }
 
-    public List<Ticket> lookUpTickets(String term, String value) throws Exception {
+    public List<Ticket> lookUpTickets(String term, String value) throws IOException, InvalidFieldException {
         if (this.ticketsIndex == null) {
             String ticketsFilePath = env.getProperty("tickets.filepath", "tickets.json");
             this.tickets = jsonReader.parseJson(ticketsFilePath, Ticket.class);
@@ -57,7 +57,7 @@ public class InvertedIndex {
         return lookUpValueFromIndex(ticketsIndex, tickets, term, value);
     }
 
-    public List<Organization> lookUpOrganizations(String term, String value) throws Exception {
+    public List<Organization> lookUpOrganizations(String term, String value) throws IOException, InvalidFieldException {
         if (this.organizationsIndex == null) {
             String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
             this.organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
@@ -68,16 +68,18 @@ public class InvertedIndex {
 
     private <T extends AbstractEntity> List<T> lookUpValueFromIndex(Map<String, Map<String, List<Integer>>> index, List<T> items, String searchTerm, String searchValue) {
         List<T> lookUpResult = new ArrayList<>();
-        String fieldName = CaseUtils.toCamelCase(searchTerm, false, '_');//convert snake naming convention to camel naming convention
-        if (index.get(fieldName) != null && index.get(fieldName).size() != 0) {
-            List<Integer> searchValueOccurance = index.get(fieldName).get(searchValue);
+
+        if(index.get(searchTerm) == null || index.get(searchTerm).size() == 0) {
+            return lookUpResult;
+        } else {
+            List<Integer> searchValueOccurance = index.get(searchTerm).get(searchValue);
             if (searchValueOccurance != null && searchValueOccurance.size() != 0) {
                 for (Integer i : searchValueOccurance) {
                     lookUpResult.add(items.get(i));
                 }
             }
+            return lookUpResult;
         }
-        return lookUpResult;
     }
 
 
@@ -85,10 +87,10 @@ public class InvertedIndex {
         Map<String, Map<String, List<Integer>>> index = new HashMap<>();
         for (int i = 0; i < elements.size(); i++) {
             T element = elements.get(i);
-            List<Field> fields = fieldsUtil.getFieldsOfClass(clazz);
+            List<Field> fields = fieldUtil.getFieldsOfClass(clazz);
             for (Field field : fields) {
                 Map<String, List<Integer>> termStat = index.getOrDefault(field.getName(), new HashMap<>());
-                Object fieldValue = fieldsUtil.readFiledValue(field, element);
+                Object fieldValue = fieldUtil.readFiledValue(field, element);
                 if (fieldValue instanceof String) {
                     List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
                     valueOccurance.add(i);

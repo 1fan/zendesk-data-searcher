@@ -39,11 +39,12 @@ public class OrganizationResponse extends AbstractResponse {
     @Override
     public String toString() {
         StringBuilder userRspStr = new StringBuilder();
-        userRspStr.append(organization.toString()).append("\n\n")
+        userRspStr.append(organization.toString()).append("\n").append("\n")
                 .append("# Related Users:").append("\n")
                 .append(getSummaryOfListOfEntities(orgUsers)).append("\n")
                 .append("# Related Tickets:").append("\n")
-                .append(getSummaryOfListOfEntities(orgTickets)).append("\n");
+                .append(getSummaryOfListOfEntities(orgTickets)).append("\n")
+                .append("\n");
 
         return userRspStr.toString();
     }

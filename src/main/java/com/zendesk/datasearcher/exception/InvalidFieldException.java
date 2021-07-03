@@ -10,7 +10,4 @@ public class InvalidFieldException extends Exception{
         super(message, cause);
     }
 
-    public InvalidFieldException(Throwable cause) {
-        super(cause);
-    }
 }

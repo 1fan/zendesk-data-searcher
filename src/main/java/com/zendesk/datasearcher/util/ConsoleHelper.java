@@ -6,7 +6,6 @@ import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.AbstractResponse;
-import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ public class ConsoleHelper {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private FieldsUtil fieldsUtil;
+    private FieldUtil fieldUtil;
 
     @Autowired
     private Environment env;
@@ -41,17 +40,17 @@ public class ConsoleHelper {
     public void printSearchableFields() {
         System.out.println("---------------------------------------");
         System.out.println("Search Users with:");
-        for (String field : fieldsUtil.getFieldsInStringOfClass(User.class)) {
+        for (String field : fieldUtil.getFieldNamesInStringOfClass(User.class)) {
             System.out.println(field);
         }
         System.out.println("---------------------------------------");
         System.out.println("Search Tickets with:");
-        for (String field : fieldsUtil.getFieldsInStringOfClass(Ticket.class)) {
+        for (String field : fieldUtil.getFieldNamesInStringOfClass(Ticket.class)) {
             System.out.println(field);
         }
         System.out.println("---------------------------------------");
         System.out.println("Search Organizations with:");
-        for (String field : fieldsUtil.getFieldsInStringOfClass(Organization.class)) {
+        for (String field : fieldUtil.getFieldNamesInStringOfClass(Organization.class)) {
             System.out.println(field);
         }
     }
