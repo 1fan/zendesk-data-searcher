@@ -2,6 +2,7 @@ package com.zendesk.datasearcher.processor;
 
 import java.util.Arrays;
 
+import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 
@@ -46,7 +47,7 @@ public class TestData {
         u2.setLastLoginAt("2012-04-12T04:03:28 -10:00");
         u2.setEmail("jonibarlow@flotonic.com");
         u2.setSignature("");
-        u2.setOrganizationId("106");
+        u2.setOrganizationId("120");
         u2.setTags(Arrays.asList("Foxworth", "Woodlands", "Herlong", "Henrietta", "common-tag"));
         u2.setSuspended(false);
         u2.setRole("admin");
@@ -78,7 +79,7 @@ public class TestData {
         Ticket ticket = new Ticket();
         ticket.setId("1a227508-9f39-427c-8f57-1b72f3fab87c");
         ticket.setUrl("http://initech.zendesk.com/api/v2/tickets/1a227508-9f39-427c-8f57-1b72f3fab87c.json");
-        ticket.setExternalId("3e5ca820-cd1f-4a02-a18f-11b18e7bb49a");
+        ticket.setExternalId("");
         ticket.setCreatedAt("2016-04-14T08:32:31 -10:00");
         ticket.setType("incident");
         ticket.setSubject("AA Catastrophe in Micronesia");
@@ -88,10 +89,37 @@ public class TestData {
         ticket.setSubmitterId("2");
         ticket.setAssigneeId("1");
         ticket.setOrganizationId("120");
-        ticket.setTags(Arrays.asList("Puerto Rico", "Idaho", "Oklahoma", "Louisiana"));
+        ticket.setTags(Arrays.asList());
         ticket.setHasIncidents(false);
-        ticket.setDueAt("2016-08-15T05:37:32 -10:00");
         ticket.setVia("chat");
         return ticket;
+    }
+
+    public static Organization getOrganization1() {
+        Organization org = new Organization();
+        org.setId("119");
+        org.setUrl("http://initech.zendesk.com/api/v2/organizations/119.json");
+        org.setExternalId("2386db7c-5056-49c9-8dc4-46775e464cb7");
+        org.setName("Multron");
+        org.setDomainNames(Arrays.asList("bleeko.com", "pulze.com", "xoggle.com", "sultraxin.com"));
+        org.setCreatedAt("2016-02-29T03:45:12 -11:00");
+        org.setDetails("Non profit");
+        org.setSharedTickets(false);
+        org.setTags(Arrays.asList("Erickson", "Mccoy", "Wiggins", "Brooks"));
+        return org;
+    }
+
+    public static Organization getOrganization2() {
+        Organization org = new Organization();
+        org.setId("120");
+        org.setUrl("http://initech.zendesk.com/api/v2/organizations/120.json");
+        org.setExternalId("82da5daf-d6ad-484d-a831-05cd3e2baea5");
+        org.setName("Andershun");
+        org.setDomainNames(Arrays.asList());//empty
+        org.setCreatedAt("2016-01-15T04:11:08 -11:00");
+        org.setDetails(null);//null
+        org.setSharedTickets(false);
+        org.setTags(null);//null
+        return org;
     }
 }

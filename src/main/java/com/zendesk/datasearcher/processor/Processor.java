@@ -37,18 +37,18 @@ public class Processor {
                 TicketResponse ticketRsp = new TicketResponse();
                 ticketRsp.setTicket(ticket);
                 List<Organization> orgs = invertedIndex.lookUpOrganizations("id", ticket.getOrganizationId());
-                if(orgs != null) {
+                if (orgs != null) {
                     //since we are searching by ID, there should be only 1 org
                     ticketRsp.setTicketOrganization(orgs.get(0));
                 }
                 List<User> assignees = invertedIndex.lookUpUser("id", ticket.getAssigneeId());
-                if(assignees != null) {
+                if (assignees != null) {
                     //since we are searching by ID, there should be only 1 org
                     ticketRsp.setAssignee(assignees.get(0));
                 }
 
                 List<User> submitters = invertedIndex.lookUpUser("id", ticket.getSubmitterId());
-                if(submitters != null) {
+                if (submitters != null) {
                     ticketRsp.setSubmitter(submitters.get(0));
                 }
                 ticketResponses.add(ticketRsp);

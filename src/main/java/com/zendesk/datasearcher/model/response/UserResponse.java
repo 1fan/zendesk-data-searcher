@@ -6,7 +6,7 @@ import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 
-public class UserResponse extends AbstractResponse{
+public class UserResponse extends AbstractResponse {
     private User user;
     private Organization userOrganization;
     private List<Ticket> submittedTickets;

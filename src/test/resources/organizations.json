@@ -25,20 +25,8 @@
     "url": "http://initech.zendesk.com/api/v2/organizations/120.json",
     "external_id": "82da5daf-d6ad-484d-a831-05cd3e2baea5",
     "name": "Andershun",
-    "domain_names": [
-      "valpreal.com",
-      "puria.com",
-      "bostonic.com",
-      "roughies.com"
-    ],
+    "domain_names": [],
     "created_at": "2016-01-15T04:11:08 -11:00",
-    "details": "MegaCorp",
-    "shared_tickets": false,
-    "tags": [
-      "Robinson",
-      "Santana",
-      "Whitehead",
-      "England"
-    ]
+    "shared_tickets": false
   }
 ]

@@ -9,7 +9,6 @@ import com.zendesk.datasearcher.exception.InvalidTermException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
-import com.zendesk.datasearcher.model.response.AbstractResponse;
 import com.zendesk.datasearcher.model.response.OrganizationResponse;
 import com.zendesk.datasearcher.model.response.TicketResponse;
 import com.zendesk.datasearcher.model.response.UserResponse;
@@ -87,7 +86,7 @@ public class DataSearcherCli implements CommandLineRunner {
         System.exit(-1);
     }
 
-    private Class processSearchDataSetInput() throws InvalidTermException{
+    private Class processSearchDataSetInput() throws InvalidTermException {
         String dataSet = scanner.nextLine();
         Class searchDataSet;
         switch (dataSet) {

@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.zendesk.datasearcher.model.entity.User;
-import com.zendesk.datasearcher.util.FieldUtil;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+//The User, Ticket and Organization are equivalent classes - thus it's okay to take User as a sample.
 public class FieldUtilTest {
     FieldUtil fieldUtil = new FieldUtil();
     Field idField = FieldUtils.getField(User.class, "id", true);

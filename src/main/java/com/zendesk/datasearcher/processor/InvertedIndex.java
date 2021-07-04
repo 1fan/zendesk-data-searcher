@@ -29,6 +29,12 @@ public class InvertedIndex {
 
     @Autowired
     private JsonFileReader jsonReader;
+    private Map<String, Map<String, List<Integer>>> usersIndex = null;
+    private Map<String, Map<String, List<Integer>>> ticketsIndex = null;
+    private Map<String, Map<String, List<Integer>>> organizationsIndex = null;
+    private List<User> users = null;
+    private List<Ticket> tickets = null;
+    private List<Organization> organizations = null;
 
     public void setEnv(Environment env) {
         this.env = env;
@@ -41,13 +47,6 @@ public class InvertedIndex {
     public void setJsonReader(JsonFileReader jsonReader) {
         this.jsonReader = jsonReader;
     }
-
-    private Map<String, Map<String, List<Integer>>> usersIndex = null;
-    private Map<String, Map<String, List<Integer>>> ticketsIndex = null;
-    private Map<String, Map<String, List<Integer>>> organizationsIndex = null;
-    private List<User> users = null;
-    private List<Ticket> tickets = null;
-    private List<Organization> organizations = null;
 
     public List<User> lookUpUser(String term, String value) throws IOException, InvalidFieldException {
         if (this.usersIndex == null) {
@@ -81,7 +80,7 @@ public class InvertedIndex {
     private <T extends AbstractEntity> List<T> lookUpValueFromIndex(Map<String, Map<String, List<Integer>>> index, List<T> items, String searchTerm, String searchValue) {
         List<T> lookUpResult = new ArrayList<>();
 
-        if(index.get(searchTerm) == null || index.get(searchTerm).size() == 0) {
+        if (index.get(searchTerm) == null || index.get(searchTerm).size() == 0) {
             return lookUpResult;
         } else {
             List<Integer> searchValueOccurance = index.get(searchTerm).get(searchValue);
@@ -113,17 +112,17 @@ public class InvertedIndex {
                     valueOccurance.add(i);
                     termStat.put(fieldValue.toString(), valueOccurance);
                 } else if (fieldValue instanceof List) {
-                    //could be tags, etc
+                    //could be tags, domainNames, etc
+                    if (((List<?>) fieldValue).isEmpty()) {
+                        populateEmpty(termStat, i);
+                    }
                     for (String s : (List<String>) fieldValue) {
                         List<Integer> valueOccurance = termStat.getOrDefault(s, new ArrayList<>());
                         valueOccurance.add(i);
                         termStat.put(s, valueOccurance);
                     }
                 } else if (fieldValue == null) {
-                    fieldValue = "";
-                    List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                    valueOccurance.add(i);
-                    termStat.put(fieldValue.toString(), valueOccurance);
+                    populateEmpty(termStat, i);
                 } else {
                     //not supported yet
                     throw new InvalidFieldException(String.format("Field %s of class %s is not supported. Currently only String, Integer, Boolean and List are supported.", field.getName(), clazz));
@@ -132,5 +131,12 @@ public class InvertedIndex {
             }
         }
         return index;
+    }
+
+    private void populateEmpty(Map<String, List<Integer>> termStat, int index) {
+        String fieldValue = "";
+        List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
+        valueOccurance.add(index);
+        termStat.put(fieldValue.toString(), valueOccurance);
     }
 }
