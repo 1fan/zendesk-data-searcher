@@ -53,6 +53,6 @@ public class UserResponse extends AbstractResponse {
                 + "# Related Submitted Tickets" + "\n"
                 + getSummaryOfListOfEntities(submittedTickets) + "\n"
                 + "# Related Assigned Tickets" + "\n"
-                + getSummaryOfListOfEntities(submittedTickets) + "\n" + "\n";
+                + getSummaryOfListOfEntities(assignedTickets) + "\n" + "\n";
     }
 }
