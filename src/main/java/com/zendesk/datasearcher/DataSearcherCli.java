@@ -74,7 +74,8 @@ public class DataSearcherCli implements CommandLineRunner {
                 System.out.println("Search failed: " + e.getMessage());
             } catch (IOException e) {
                 logger.warn("Search failed: ", e);
-                System.out.println("Search failed: failed to process the JSON file, please contact yifanwanghit@gmail.com for supports." + e.getMessage());
+                System.out.println("Search failed: " + e);
+                System.out.println("Please contact yifanwanghit@gmail.com for supports");
             }
             consoleHelper.printHelper();
         }

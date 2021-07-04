@@ -1,1 +1,1 @@
-java -jar datasearcher-0.0.1-SNAPSHOT.jar --spring.config.location=./
+java -Dloader.path="config" -jar datasearcher-0.0.1-SNAPSHOT.jar
