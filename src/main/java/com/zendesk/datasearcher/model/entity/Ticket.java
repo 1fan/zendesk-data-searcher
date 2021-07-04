@@ -110,11 +110,9 @@ public class Ticket extends AbstractEntity {
 
     @Override
     public String getSummary() {
-        StringBuilder summary = new StringBuilder();
-        summary.append("Subject: ").append(subject).append("\n")
-                .append("Description: ").append(description).append("\n")
-                .append("Url: ").append(url);
-        return summary.toString();
+        return "Subject: " + subject + "\n"
+                + "Description: " + description + "\n"
+                + "Url: " + url;
     }
 
     @Override
@@ -135,5 +133,69 @@ public class Ticket extends AbstractEntity {
                 "due_at: " + dueAt + "\n" +
                 "via: " + via + "\n" +
                 "organization_id: " + organizationId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Ticket)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        Ticket ticket = (Ticket) o;
+
+        if (isHasIncidents() != ticket.isHasIncidents()) {
+            return false;
+        }
+        if (getType() != null ? !getType().equals(ticket.getType()) : ticket.getType() != null) {
+            return false;
+        }
+        if (getSubject() != null ? !getSubject().equals(ticket.getSubject()) : ticket.getSubject() != null) {
+            return false;
+        }
+        if (getDescription() != null ? !getDescription().equals(ticket.getDescription()) : ticket.getDescription() != null) {
+            return false;
+        }
+        if (getPriority() != null ? !getPriority().equals(ticket.getPriority()) : ticket.getPriority() != null) {
+            return false;
+        }
+        if (getStatus() != null ? !getStatus().equals(ticket.getStatus()) : ticket.getStatus() != null) {
+            return false;
+        }
+        if (getSubmitterId() != null ? !getSubmitterId().equals(ticket.getSubmitterId()) : ticket.getSubmitterId() != null) {
+            return false;
+        }
+        if (getAssigneeId() != null ? !getAssigneeId().equals(ticket.getAssigneeId()) : ticket.getAssigneeId() != null) {
+            return false;
+        }
+        if (getDueAt() != null ? !getDueAt().equals(ticket.getDueAt()) : ticket.getDueAt() != null) {
+            return false;
+        }
+        if (getVia() != null ? !getVia().equals(ticket.getVia()) : ticket.getVia() != null) {
+            return false;
+        }
+        return getOrganizationId() != null ? getOrganizationId().equals(ticket.getOrganizationId()) : ticket.getOrganizationId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        result = 31 * result + (getSubject() != null ? getSubject().hashCode() : 0);
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (getPriority() != null ? getPriority().hashCode() : 0);
+        result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
+        result = 31 * result + (getSubmitterId() != null ? getSubmitterId().hashCode() : 0);
+        result = 31 * result + (getAssigneeId() != null ? getAssigneeId().hashCode() : 0);
+        result = 31 * result + (isHasIncidents() ? 1 : 0);
+        result = 31 * result + (getDueAt() != null ? getDueAt().hashCode() : 0);
+        result = 31 * result + (getVia() != null ? getVia().hashCode() : 0);
+        result = 31 * result + (getOrganizationId() != null ? getOrganizationId().hashCode() : 0);
+        return result;
     }
 }

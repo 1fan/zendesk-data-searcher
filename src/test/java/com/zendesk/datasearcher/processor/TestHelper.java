@@ -1,6 +1,7 @@
 package com.zendesk.datasearcher.processor;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
@@ -103,14 +104,14 @@ public class TestHelper {
         ticket.setExternalId("");
         ticket.setCreatedAt("2016-04-14T08:32:31 -10:00");
         ticket.setType("incident");
-        ticket.setSubject("AA Catastrophe in Micronesia");
+        ticket.setSubject("A Catastrophe in Micronesia");
         ticket.setDescription("Aliquip excepteur fugiat ex minim ea aute eu labore. Sunt eiusmod esse eu non commodo est veniam consequat.");
         ticket.setPriority("low");
         ticket.setStatus("hold");
         ticket.setSubmitterId("2");
         ticket.setAssigneeId("1");
         ticket.setOrganizationId("120");
-        ticket.setTags(Arrays.asList());
+        ticket.setTags(Collections.emptyList());
         ticket.setHasIncidents(false);
         ticket.setVia("chat");
         return ticket;
@@ -136,7 +137,7 @@ public class TestHelper {
         org.setUrl("http://initech.zendesk.com/api/v2/organizations/120.json");
         org.setExternalId("82da5daf-d6ad-484d-a831-05cd3e2baea5");
         org.setName("Andershun");
-        org.setDomainNames(Arrays.asList());//empty
+        org.setDomainNames(Collections.emptyList());//empty
         org.setCreatedAt("2016-01-15T04:11:08 -11:00");
         org.setDetails(null);//null
         org.setSharedTickets(false);

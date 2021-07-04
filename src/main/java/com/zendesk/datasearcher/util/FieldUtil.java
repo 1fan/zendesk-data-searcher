@@ -42,13 +42,13 @@ public class FieldUtil {
         if (camelText != null) {
             return CaseUtils.toCamelCase(camelText, false, '_');
         } else {
-            return camelText;
+            return null;
         }
     }
 
     public String convertCamelToSnakeNamingConvention(String camelText) {
         if (camelText == null) {
-            return camelText;
+            return null;
         }
         if ("id".equals(camelText)) {
             return "_id";

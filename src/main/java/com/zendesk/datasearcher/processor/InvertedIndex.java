@@ -20,8 +20,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvertedIndex {
-
-
     private Environment env;
     private FieldUtil fieldUtil;
     private JsonFileReader jsonReader;
@@ -102,7 +100,7 @@ public class InvertedIndex {
                 Map<String, List<Integer>> termStat = index.getOrDefault(field.getName(), new HashMap<>());
                 Object fieldValue = fieldUtil.readFiledValue(field, element);
                 if (fieldValue instanceof String) {
-                    updateFieldStatisticsWithValue((String)fieldValue, termStat, i);
+                    updateFieldStatisticsWithValue((String) fieldValue, termStat, i);
                 } else if (fieldValue instanceof Boolean) {
                     updateFieldStatisticsWithValue(fieldValue.toString(), termStat, i);
                 } else if (fieldValue instanceof List) {
@@ -116,7 +114,7 @@ public class InvertedIndex {
                 } else if (fieldValue == null) {
                     updateFieldStatisticsWithValue("", termStat, i);
                 } else {
-                    //not supported yet
+                    //field type not supported yet
                     throw new InvalidFieldException(String.format("Field %s of class %s is not supported. Currently only String, Integer, Boolean and List are supported.", field.getName(), element.getClass()));
                 }
                 index.put(field.getName(), termStat);

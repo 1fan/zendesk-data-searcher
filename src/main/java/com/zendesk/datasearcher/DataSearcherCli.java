@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.zendesk.datasearcher.exception.InvalidFieldException;
-import com.zendesk.datasearcher.exception.InvalidTermException;
+import com.zendesk.datasearcher.exception.InvalidInputException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
@@ -67,20 +67,21 @@ public class DataSearcherCli implements CommandLineRunner {
                         consoleHelper.printSearchableFields();
                         break;
                     default:
-                        System.out.println("Invalid option selected! Please ensure select from '1' or '2'.");
-                        break;
+                        throw new InvalidInputException("Invalid option selected! Please ensure select from '1' or '2'.");
                 }
-            } catch (InvalidTermException | InvalidFieldException e) {
+            } catch (InvalidInputException | InvalidFieldException e) {
+                logger.warn("Search failed: ", e);
                 System.out.println("Search failed: " + e.getMessage());
             } catch (IOException e) {
-                System.out.println("Search failed as failed to process the JSON file, please contact Yifan for supports." + e.getMessage());
+                logger.warn("Search failed: ", e);
+                System.out.println("Search failed: failed to process the JSON file, please contact yifanwanghit@gmail.com for supports." + e.getMessage());
             }
             consoleHelper.printHelper();
         }
         System.exit(-1);
     }
 
-    private void processDataSearch() throws InvalidTermException, IOException, InvalidFieldException {
+    private void processDataSearch() throws InvalidInputException, IOException, InvalidFieldException {
         System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
         Class searchDataSet = processSearchDataSetInput();
         List<String> fields = fieldUtil.getFieldNamesInStringOfClass(searchDataSet);
@@ -104,7 +105,7 @@ public class DataSearcherCli implements CommandLineRunner {
         }
     }
 
-    private Class processSearchDataSetInput() throws InvalidTermException {
+    private Class processSearchDataSetInput() throws InvalidInputException {
         String dataSet = scanner.nextLine();
         Class searchDataSet;
         switch (dataSet) {
@@ -118,15 +119,15 @@ public class DataSearcherCli implements CommandLineRunner {
                 searchDataSet = Organization.class;
                 break;
             default:
-                throw new InvalidTermException(String.format("The option %s is not valid, please try again and select from option 1, 2 or 3.", dataSet));
+                throw new InvalidInputException(String.format("The option %s is not valid, please try again and select from option 1, 2 or 3.", dataSet));
         }
         return searchDataSet;
     }
 
-    private String processSearchTermInput(String searchDataSetName, List<String> fields) throws InvalidTermException {
+    private String processSearchTermInput(String searchDataSetName, List<String> fields) throws InvalidInputException {
         String searchTerm = scanner.nextLine();
         if (!fields.contains(searchTerm)) {
-            throw new InvalidTermException(String.format("The term '%s' can't be found from dataset %s, please try again."
+            throw new InvalidInputException(String.format("The term '%s' can't be found from dataset %s, please try again."
                     + "\n"
                     + "Or type 2 to view a list of searchable fields ", searchTerm, searchDataSetName));
         }
