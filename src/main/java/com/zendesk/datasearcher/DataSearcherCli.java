@@ -24,18 +24,29 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class DataSearcherCli implements CommandLineRunner {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
     private Processor processor;
-
-    @Autowired
     private ConsoleHelper consoleHelper;
-
-    @Autowired
     private FieldUtil fieldUtil;
 
-    private Scanner scanner = new Scanner(System.in);
+    @Autowired
+    public void setProcessor(Processor processor) {
+        this.processor = processor;
+    }
+
+    @Autowired
+    public void setConsoleHelper(ConsoleHelper consoleHelper) {
+        this.consoleHelper = consoleHelper;
+    }
+
+    @Autowired
+    public void setFieldUtil(FieldUtil fieldUtil) {
+        this.fieldUtil = fieldUtil;
+    }
+
+    private final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         SpringApplication.run(DataSearcherCli.class, args);
@@ -48,33 +59,16 @@ public class DataSearcherCli implements CommandLineRunner {
         String searchOption;
         while (!"quit".equals(searchOption = scanner.nextLine().toLowerCase())) {
             try {
-                if ("1".equals(searchOption)) {
-                    System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
-                    Class searchDataSet = processSearchDataSetInput();
-                    List<String> fields = fieldUtil.getFieldNamesInStringOfClass(searchDataSet);
-
-                    System.out.println("Enter search term");
-                    String searchTerm = processSearchTermInput(searchDataSet, fields);
-
-                    System.out.println("Enter search value");
-                    String searchValue = scanner.nextLine();
-                    String fieldName = fieldUtil.converSnaketToCamelNamingConvention(searchTerm);
-
-                    if (searchDataSet.equals(User.class)) {
-                        List<UserResponse> users = processor.searchByUsers(fieldName, searchValue);
-                        consoleHelper.printSearchResult(users, searchTerm, searchValue);
-                    } else if (searchDataSet.equals(Organization.class)) {
-                        List<OrganizationResponse> orgs = processor.searchByOrganizations(fieldName, searchValue);
-                        consoleHelper.printSearchResult(orgs, searchTerm, searchValue);
-                    } else if (searchDataSet.equals(Ticket.class)) {
-                        List<TicketResponse> tickets = processor.searchByTickets(fieldName, searchValue);
-                        consoleHelper.printSearchResult(tickets, searchTerm, searchValue);
-                    }
-
-                } else if ("2".equals(searchOption)) {
-                    consoleHelper.printSearchableFields();
-                } else {
-                    System.out.println("Invalid option selected!");
+                switch (searchOption) {
+                    case "1":
+                        processDataSearch();
+                        break;
+                    case "2":
+                        consoleHelper.printSearchableFields();
+                        break;
+                    default:
+                        System.out.println("Invalid option selected! Please ensure select from '1' or '2'.");
+                        break;
                 }
             } catch (InvalidTermException | InvalidFieldException e) {
                 System.out.println("Search failed: " + e.getMessage());
@@ -84,6 +78,30 @@ public class DataSearcherCli implements CommandLineRunner {
             consoleHelper.printHelper();
         }
         System.exit(-1);
+    }
+
+    private void processDataSearch() throws InvalidTermException, IOException, InvalidFieldException {
+        System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
+        Class searchDataSet = processSearchDataSetInput();
+        List<String> fields = fieldUtil.getFieldNamesInStringOfClass(searchDataSet);
+
+        System.out.println("Enter search term");
+        String searchTerm = processSearchTermInput(searchDataSet.getSimpleName(), fields);
+        String fieldName = fieldUtil.converSnaketToCamelNamingConvention(searchTerm);
+
+        System.out.println("Enter search value");
+        String searchValue = scanner.nextLine();
+
+        if (searchDataSet.equals(User.class)) {
+            List<UserResponse> users = processor.searchByUsers(fieldName, searchValue);
+            consoleHelper.printSearchResult(users, searchTerm, searchValue);
+        } else if (searchDataSet.equals(Organization.class)) {
+            List<OrganizationResponse> orgs = processor.searchByOrganizations(fieldName, searchValue);
+            consoleHelper.printSearchResult(orgs, searchTerm, searchValue);
+        } else if (searchDataSet.equals(Ticket.class)) {
+            List<TicketResponse> tickets = processor.searchByTickets(fieldName, searchValue);
+            consoleHelper.printSearchResult(tickets, searchTerm, searchValue);
+        }
     }
 
     private Class processSearchDataSetInput() throws InvalidTermException {
@@ -105,12 +123,12 @@ public class DataSearcherCli implements CommandLineRunner {
         return searchDataSet;
     }
 
-    private String processSearchTermInput(Class searchDataSet, List<String> fields) throws InvalidTermException {
+    private String processSearchTermInput(String searchDataSetName, List<String> fields) throws InvalidTermException {
         String searchTerm = scanner.nextLine();
         if (!fields.contains(searchTerm)) {
             throw new InvalidTermException(String.format("The term '%s' can't be found from dataset %s, please try again."
                     + "\n"
-                    + "Or type 2 to view a list of searchable fields ", searchTerm, searchDataSet.getSimpleName()));
+                    + "Or type 2 to view a list of searchable fields ", searchTerm, searchDataSetName));
         }
         return searchTerm;
     }

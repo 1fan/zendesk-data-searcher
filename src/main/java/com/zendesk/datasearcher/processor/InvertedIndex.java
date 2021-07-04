@@ -21,14 +21,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvertedIndex {
 
-    @Autowired
+
     private Environment env;
-
-    @Autowired
     private FieldUtil fieldUtil;
-
-    @Autowired
     private JsonFileReader jsonReader;
+
     private Map<String, Map<String, List<Integer>>> usersIndex = null;
     private Map<String, Map<String, List<Integer>>> ticketsIndex = null;
     private Map<String, Map<String, List<Integer>>> organizationsIndex = null;
@@ -36,14 +33,17 @@ public class InvertedIndex {
     private List<Ticket> tickets = null;
     private List<Organization> organizations = null;
 
+    @Autowired
     public void setEnv(Environment env) {
         this.env = env;
     }
 
+    @Autowired
     public void setFieldUtil(FieldUtil fieldUtil) {
         this.fieldUtil = fieldUtil;
     }
 
+    @Autowired
     public void setJsonReader(JsonFileReader jsonReader) {
         this.jsonReader = jsonReader;
     }
@@ -52,7 +52,7 @@ public class InvertedIndex {
         if (this.usersIndex == null) {
             String usersFilePath = env.getProperty("users.filepath", "users.json");
             this.users = jsonReader.parseJson(usersFilePath, User.class);
-            this.usersIndex = buildIndex(users, User.class);
+            this.usersIndex = buildIndex(users);
         }
 
         return lookUpValueFromIndex(usersIndex, users, term, value);
@@ -62,7 +62,7 @@ public class InvertedIndex {
         if (this.ticketsIndex == null) {
             String ticketsFilePath = env.getProperty("tickets.filepath", "tickets.json");
             this.tickets = jsonReader.parseJson(ticketsFilePath, Ticket.class);
-            this.ticketsIndex = buildIndex(tickets, Ticket.class);
+            this.ticketsIndex = buildIndex(tickets);
         }
 
         return lookUpValueFromIndex(ticketsIndex, tickets, term, value);
@@ -72,7 +72,7 @@ public class InvertedIndex {
         if (this.organizationsIndex == null) {
             String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
             this.organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
-            this.organizationsIndex = buildIndex(organizations, Organization.class);
+            this.organizationsIndex = buildIndex(organizations);
         }
         return lookUpValueFromIndex(organizationsIndex, organizations, term, value);
     }
@@ -93,39 +93,31 @@ public class InvertedIndex {
         }
     }
 
-
-    private <T extends AbstractEntity> Map<String, Map<String, List<Integer>>> buildIndex(List<T> elements, Class<T> clazz) throws InvalidFieldException {
+    private <T extends AbstractEntity> Map<String, Map<String, List<Integer>>> buildIndex(List<T> elements) throws InvalidFieldException {
         Map<String, Map<String, List<Integer>>> index = new HashMap<>();
         for (int i = 0; i < elements.size(); i++) {
             T element = elements.get(i);
-            List<Field> fields = fieldUtil.getFieldsOfClass(clazz);
+            List<Field> fields = fieldUtil.getFieldsOfClass(element.getClass());
             for (Field field : fields) {
                 Map<String, List<Integer>> termStat = index.getOrDefault(field.getName(), new HashMap<>());
                 Object fieldValue = fieldUtil.readFiledValue(field, element);
                 if (fieldValue instanceof String) {
-                    List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                    valueOccurance.add(i);
-                    termStat.put((String) fieldValue, valueOccurance);
+                    updateFieldStatisticsWithValue((String)fieldValue, termStat, i);
                 } else if (fieldValue instanceof Boolean) {
-                    fieldValue = fieldValue.toString();
-                    List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
-                    valueOccurance.add(i);
-                    termStat.put(fieldValue.toString(), valueOccurance);
+                    updateFieldStatisticsWithValue(fieldValue.toString(), termStat, i);
                 } else if (fieldValue instanceof List) {
                     //could be tags, domainNames, etc
                     if (((List<?>) fieldValue).isEmpty()) {
-                        populateEmpty(termStat, i);
+                        updateFieldStatisticsWithValue("", termStat, i);
                     }
                     for (String s : (List<String>) fieldValue) {
-                        List<Integer> valueOccurance = termStat.getOrDefault(s, new ArrayList<>());
-                        valueOccurance.add(i);
-                        termStat.put(s, valueOccurance);
+                        updateFieldStatisticsWithValue(s, termStat, i);
                     }
                 } else if (fieldValue == null) {
-                    populateEmpty(termStat, i);
+                    updateFieldStatisticsWithValue("", termStat, i);
                 } else {
                     //not supported yet
-                    throw new InvalidFieldException(String.format("Field %s of class %s is not supported. Currently only String, Integer, Boolean and List are supported.", field.getName(), clazz));
+                    throw new InvalidFieldException(String.format("Field %s of class %s is not supported. Currently only String, Integer, Boolean and List are supported.", field.getName(), element.getClass()));
                 }
                 index.put(field.getName(), termStat);
             }
@@ -133,10 +125,9 @@ public class InvertedIndex {
         return index;
     }
 
-    private void populateEmpty(Map<String, List<Integer>> termStat, int index) {
-        String fieldValue = "";
-        List<Integer> valueOccurance = termStat.getOrDefault(fieldValue, new ArrayList<>());
+    private void updateFieldStatisticsWithValue(String fieldValue, Map<String, List<Integer>> fieldStats, int index) {
+        List<Integer> valueOccurance = fieldStats.getOrDefault(fieldValue, new ArrayList<>());
         valueOccurance.add(index);
-        termStat.put(fieldValue.toString(), valueOccurance);
+        fieldStats.put(fieldValue, valueOccurance);
     }
 }

@@ -46,15 +46,13 @@ public class UserResponse extends AbstractResponse {
 
     @Override
     public String toString() {
-        StringBuilder userRspStr = new StringBuilder();
-        userRspStr.append(user.toString()).append("\n").append("\n")
-                .append("# Related Organization:").append("\n")
-                .append(userOrganization == null ? "NA" : userOrganization.getSummary()).append("\n").append("\n")
-                .append("# Related Submitted Tickets:").append("\n")
-                .append(getSummaryOfListOfEntities(submittedTickets)).append("\n").append("\n")
-                .append("# Related Assigned Tickets:").append("\n")
-                .append(getSummaryOfListOfEntities(submittedTickets)).append("\n").append("\n");
-
-        return userRspStr.toString();
+        return "# User" + "\n"
+                + user.toString() + "\n" + "\n"
+                + "# Related Organization" + "\n"
+                + (userOrganization == null ? "NA" : userOrganization.getSummary()) + "\n" + "\n"
+                + "# Related Submitted Tickets" + "\n"
+                + getSummaryOfListOfEntities(submittedTickets) + "\n"
+                + "# Related Assigned Tickets" + "\n"
+                + getSummaryOfListOfEntities(submittedTickets) + "\n" + "\n";
     }
 }

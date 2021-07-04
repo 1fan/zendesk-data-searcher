@@ -21,9 +21,9 @@ public class Processor {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
     private InvertedIndex invertedIndex;
 
+    @Autowired
     public void setInvertedIndex(InvertedIndex invertedIndex) {
         this.invertedIndex = invertedIndex;
     }
@@ -40,21 +40,9 @@ public class Processor {
             for (Ticket ticket : tickets) {
                 TicketResponse ticketRsp = new TicketResponse();
                 ticketRsp.setTicket(ticket);
-                List<Organization> orgs = invertedIndex.lookUpOrganizations("id", ticket.getOrganizationId());
-                if (orgs != null) {
-                    //since we are searching by ID, there should be only 1 org
-                    ticketRsp.setTicketOrganization(orgs.get(0));
-                }
-                List<User> assignees = invertedIndex.lookUpUser("id", ticket.getAssigneeId());
-                if (assignees != null) {
-                    //since we are searching by ID, there should be only 1 org
-                    ticketRsp.setAssignee(assignees.get(0));
-                }
-
-                List<User> submitters = invertedIndex.lookUpUser("id", ticket.getSubmitterId());
-                if (submitters != null) {
-                    ticketRsp.setSubmitter(submitters.get(0));
-                }
+                ticketRsp.setTicketOrganization(getOrganizationWithId(ticket.getOrganizationId()));
+                ticketRsp.setAssignee(getUserWithId(ticket.getAssigneeId()));
+                ticketRsp.setSubmitter(getUserWithId(ticket.getSubmitterId()));
                 ticketResponses.add(ticketRsp);
             }
         }
@@ -95,17 +83,33 @@ public class Processor {
             for (User user : users) {
                 UserResponse userResponse = new UserResponse();
                 userResponse.setUser(user);
-                List<Organization> relatedOrg = invertedIndex.lookUpOrganizations("id", user.getOrganizationId());
-                if (relatedOrg != null) {
-                    //since we are searching on ID, there should be only 1 or 0 organization.
-                    userResponse.setUserOrganization(relatedOrg.get(0));
-                }
+                userResponse.setUserOrganization(getOrganizationWithId(user.getOrganizationId()));
                 userResponse.setSubmittedTickets(invertedIndex.lookUpTickets("submitterId", user.getId()));
                 userResponse.setAssignedTickets(invertedIndex.lookUpTickets("assigneeId", user.getId()));
                 userResponses.add(userResponse);
             }
         }
         return userResponses;
+    }
+
+    private User getUserWithId(String id) throws IOException, InvalidFieldException {
+        List<User> results = invertedIndex.lookUpUser("id", id);
+        if (results == null || results.isEmpty()) {
+            return null;
+        } else {
+            //since we are searching by ID, there should be only 1 org
+            return results.get(0);
+        }
+    }
+
+    private Organization getOrganizationWithId(String id) throws IOException, InvalidFieldException {
+        List<Organization> orgs = invertedIndex.lookUpOrganizations("id", id);
+        if (orgs == null || orgs.isEmpty()) {
+            return null;
+        } else {
+            //since we are searching by ID, there should be only 1 org
+            return orgs.get(0);
+        }
     }
 
 }

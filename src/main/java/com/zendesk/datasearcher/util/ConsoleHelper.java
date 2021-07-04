@@ -6,22 +6,18 @@ import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.AbstractResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConsoleHelper {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
     private FieldUtil fieldUtil;
 
     @Autowired
-    private Environment env;
+    public void setFieldUtil(FieldUtil fieldUtil) {
+        this.fieldUtil = fieldUtil;
+    }
 
     public void printWelcome() {
         System.out.println("Welcome to Zendesk Search");
@@ -57,13 +53,13 @@ public class ConsoleHelper {
 
     public <T extends AbstractResponse> void printSearchResult(List<T> results, String searchTerm, String searchValue) {
         if (results != null && results.size() > 0) {
-            System.out.println(String.format("Found %d results for term '%s' with value '%s'.", results.size(), searchTerm, searchValue));
+            System.out.printf("Found %d results for term '%s' with value '%s'.\n", results.size(), searchTerm, searchValue);
             for (int i = 0; i < results.size(); i++) {
-                System.out.println(String.format("************Result %d************", i + 1));
+                System.out.printf("************Result %d************\n", i + 1);
                 System.out.println(results.get(i).toString());
             }
         } else {
-            System.out.println(String.format("No result is found for term '%s' with value '%s'.", searchTerm, searchValue));
+            System.out.printf("No result is found for term '%s' with value '%s'.\n", searchTerm, searchValue);
         }
     }
 }
