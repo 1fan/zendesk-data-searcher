@@ -5,9 +5,30 @@ import java.util.Arrays;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
+import com.zendesk.datasearcher.util.FieldUtil;
+import com.zendesk.datasearcher.util.JsonFileReader;
+import org.mockito.Mockito;
+import org.springframework.core.env.Environment;
 
-public class TestData {
-    public static User getUser1() {
+public class TestHelper {
+    protected static Environment getMockEnv() {
+        Environment mockEnv = Mockito.mock(Environment.class);
+        Mockito.when(mockEnv.getProperty(Mockito.eq("users.filepath"), Mockito.eq("users.json"))).thenReturn("users.json");
+        Mockito.when(mockEnv.getProperty(Mockito.eq("tickets.filepath"), Mockito.eq("tickets.json"))).thenReturn("tickets.json");
+        Mockito.when(mockEnv.getProperty(Mockito.eq("organizations.filepath"), Mockito.eq("organizations.json"))).thenReturn("organizations.json");
+        return mockEnv;
+    }
+
+    protected static InvertedIndex getInvertedIndex() {
+        InvertedIndex invertedIndex = new InvertedIndex();
+        invertedIndex.setEnv(getMockEnv());
+        invertedIndex.setJsonReader(new JsonFileReader());
+        invertedIndex.setFieldUtil(new FieldUtil());
+
+        return invertedIndex;
+    }
+
+    protected static User getUser1() {
         User u1 = new User();
         u1.setId("1");
         u1.setUrl("http://initech.zendesk.com/api/v2/users/1.json");
@@ -31,7 +52,7 @@ public class TestData {
         return u1;
     }
 
-    public static User getUser2() {
+    protected static User getUser2() {
         User u2 = new User();
         u2.setId("2");
         u2.setUrl("http://initech.zendesk.com/api/v2/users/2.json");
@@ -54,7 +75,7 @@ public class TestData {
         return u2;
     }
 
-    public static Ticket getTicket1() {
+    protected static Ticket getTicket1() {
         Ticket ticket = new Ticket();
         ticket.setId("436bf9b0-1147-4c0a-8439-6f79833bff5b");
         ticket.setUrl("http://initech.zendesk.com/api/v2/tickets/436bf9b0-1147-4c0a-8439-6f79833bff5b.json");
@@ -75,7 +96,7 @@ public class TestData {
         return ticket;
     }
 
-    public static Ticket getTicket2() {
+    protected static Ticket getTicket2() {
         Ticket ticket = new Ticket();
         ticket.setId("1a227508-9f39-427c-8f57-1b72f3fab87c");
         ticket.setUrl("http://initech.zendesk.com/api/v2/tickets/1a227508-9f39-427c-8f57-1b72f3fab87c.json");
@@ -95,7 +116,7 @@ public class TestData {
         return ticket;
     }
 
-    public static Organization getOrganization1() {
+    protected static Organization getOrganization1() {
         Organization org = new Organization();
         org.setId("119");
         org.setUrl("http://initech.zendesk.com/api/v2/organizations/119.json");
@@ -109,7 +130,7 @@ public class TestData {
         return org;
     }
 
-    public static Organization getOrganization2() {
+    protected static Organization getOrganization2() {
         Organization org = new Organization();
         org.setId("120");
         org.setUrl("http://initech.zendesk.com/api/v2/organizations/120.json");

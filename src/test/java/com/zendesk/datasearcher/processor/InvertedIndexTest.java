@@ -7,8 +7,6 @@ import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.util.FieldUtil;
 import com.zendesk.datasearcher.util.JsonFileReader;
-import org.mockito.Mockito;
-import org.springframework.core.env.Environment;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -25,20 +23,16 @@ public class InvertedIndexTest {
 
     @BeforeMethod
     private void setUp() {
-        Environment mockEnv = Mockito.mock(Environment.class);
-        Mockito.when(mockEnv.getProperty(Mockito.eq("users.filepath"), Mockito.eq("users.json"))).thenReturn("users.json");
-        Mockito.when(mockEnv.getProperty(Mockito.eq("tickets.filepath"), Mockito.eq("tickets.json"))).thenReturn("tickets.json");
-        Mockito.when(mockEnv.getProperty(Mockito.eq("organizations.filepath"), Mockito.eq("organizations.json"))).thenReturn("organizations.json");
-        invertedIndex.setEnv(mockEnv);
+        invertedIndex.setEnv(TestHelper.getMockEnv());
         invertedIndex.setJsonReader(new JsonFileReader());
         invertedIndex.setFieldUtil(new FieldUtil());
 
-        user1 = TestData.getUser1();
-        user2 = TestData.getUser2();
-        ticket1 = TestData.getTicket1();
-        ticket2 = TestData.getTicket2();
-        organization1 = TestData.getOrganization1();
-        organization2 = TestData.getOrganization2();
+        user1 = TestHelper.getUser1();
+        user2 = TestHelper.getUser2();
+        ticket1 = TestHelper.getTicket1();
+        ticket2 = TestHelper.getTicket2();
+        organization1 = TestHelper.getOrganization1();
+        organization2 = TestHelper.getOrganization2();
     }
 
     /**
@@ -108,6 +102,7 @@ public class InvertedIndexTest {
             Assert.assertEquals(searchOnInvalidFieldName.size(), 0);
 
         } catch (Exception e) {
+            e.printStackTrace();
             Assert.fail();
         }
     }
@@ -177,6 +172,7 @@ public class InvertedIndexTest {
             Assert.assertEquals(searchOnInvalidFieldName.size(), 0);
 
         } catch (Exception e) {
+            e.printStackTrace();
             Assert.fail();
         }
     }

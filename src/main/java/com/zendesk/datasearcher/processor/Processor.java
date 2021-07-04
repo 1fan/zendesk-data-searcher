@@ -24,6 +24,10 @@ public class Processor {
     @Autowired
     private InvertedIndex invertedIndex;
 
+    public void setInvertedIndex(InvertedIndex invertedIndex) {
+        this.invertedIndex = invertedIndex;
+    }
+
     public List<TicketResponse> searchByTickets(String searchTerm, String searchValue) throws IOException, InvalidFieldException {
         List<TicketResponse> ticketResponses = new ArrayList<>();
         List<Ticket> tickets = invertedIndex.lookUpTickets(searchTerm, searchValue);
