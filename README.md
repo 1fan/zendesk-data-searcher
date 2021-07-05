@@ -63,7 +63,7 @@ This project requires `Maven 3.6` to build and `Java 8` to run. Please follow th
 
 Or can just open the project in IDE and start it.
 
-# Search Demo
+# Search Function Demo
 
 * Introduction
   ![Introduction](screenshot/demo/introduction.png)
@@ -91,12 +91,6 @@ Or can just open the project in IDE and start it.
 * JSON files should be provided. If file is not provided, the default files in the jar will be used.
 * When search on the list field (tags, domain_names, etc), only one value can be searched. For instance, you can search on the field `tags`
   with value `'tagValue'`, but not on field "tag" with value `['tag1', 'tag2']`
-
-# Tradeoff
-
-This implementation used a "Lazy Init" mode to initialize the indexes - the indexes will only be initialized when it's started to be used.
-Thus the first search will be slower than the subsequence operations because the JSON files will be parsed and indexes will be built in this
-stage.
 
 # How Text Search works?
 
@@ -180,6 +174,12 @@ The User index will be updated to
 ```
 
 Thus we can easily get all occurrences of the given field with the given value
+
+## Note
+
+This implementation used a "Lazy Init" mode to initialize the indexes - the indexes will only be initialized when it's started to be used.
+Thus, the very first search will be slower than the subsequence operations because the JSON files will be parsed and indexes will be built
+in this stage.
 
 # How Ticket, User and Organization are linked?
 
