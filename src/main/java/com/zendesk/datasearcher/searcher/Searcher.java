@@ -1,4 +1,4 @@
-package com.zendesk.datasearcher.processor;
+package com.zendesk.datasearcher.searcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class Searcher {
     }
 
     /**
-     * Perform search on the Ticket dataset for the given term and given value.
+     * Search on the Ticket dataset for the given field and given value.
      *
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link Ticket} class field name.
      * @param fieldValue the value of the field name.
@@ -49,8 +49,11 @@ public class Searcher {
             for (Ticket ticket : tickets) {
                 TicketResponse ticketRsp = new TicketResponse();
                 ticketRsp.setTicket(ticket);
+                //related organization
                 ticketRsp.setTicketOrganization(getOrganizationWithId(ticket.getOrganizationId()));
+                //related user - assignee
                 ticketRsp.setAssignee(getUserWithId(ticket.getAssigneeId()));
+                //related user - submitter
                 ticketRsp.setSubmitter(getUserWithId(ticket.getSubmitterId()));
                 ticketResponses.add(ticketRsp);
             }
@@ -59,7 +62,7 @@ public class Searcher {
     }
 
     /**
-     * Perform search on the Organization dataset for the given term and given value.
+     * Search on the Organization dataset for the given field and given value.
      *
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link Organization} class field name.
      * @param fieldValue the value of the field name.
@@ -80,7 +83,9 @@ public class Searcher {
             for (Organization org : organizations) {
                 OrganizationResponse orgRsp = new OrganizationResponse();
                 orgRsp.setOrganization(org);
+                //related users
                 orgRsp.setOrgUsers(invertedIndex.lookUpUser("organizationId", org.getId()));
+                //related tickets
                 orgRsp.setOrgTickets(invertedIndex.lookUpTickets("organizationId", org.getId()));
                 orgResponses.add(orgRsp);
             }
@@ -89,7 +94,7 @@ public class Searcher {
     }
 
     /**
-     * Perform search on the User dataset for the given term and given value.
+     * Search on the User dataset for the given field and given value.
      *
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link User} class field name.
      * @param fieldValue the value of the field name.
@@ -110,8 +115,11 @@ public class Searcher {
             for (User user : users) {
                 UserResponse userResponse = new UserResponse();
                 userResponse.setUser(user);
+                //related org
                 userResponse.setUserOrganization(getOrganizationWithId(user.getOrganizationId()));
+                //related tickets - submitted by the user
                 userResponse.setSubmittedTickets(invertedIndex.lookUpTickets("submitterId", user.getId()));
+                //related tickets - assigned by the user
                 userResponse.setAssignedTickets(invertedIndex.lookUpTickets("assigneeId", user.getId()));
                 userResponses.add(userResponse);
             }

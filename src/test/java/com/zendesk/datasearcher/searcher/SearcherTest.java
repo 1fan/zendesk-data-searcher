@@ -1,4 +1,4 @@
-package com.zendesk.datasearcher.processor;
+package com.zendesk.datasearcher.searcher;
 
 import java.util.List;
 

@@ -1,22 +1,37 @@
 package com.zendesk.datasearcher.util;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 
+import com.zendesk.datasearcher.exception.InvalidFieldException;
+import com.zendesk.datasearcher.exception.InvalidInputException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.AbstractResponse;
+import com.zendesk.datasearcher.model.response.OrganizationResponse;
+import com.zendesk.datasearcher.model.response.TicketResponse;
+import com.zendesk.datasearcher.model.response.UserResponse;
+import com.zendesk.datasearcher.searcher.Searcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConsoleHelper {
 
+    private final Scanner scanner = new Scanner(System.in);
     private FieldUtil fieldUtil;
+    private Searcher searcher;
 
     @Autowired
     public void setFieldUtil(FieldUtil fieldUtil) {
         this.fieldUtil = fieldUtil;
+    }
+
+    @Autowired
+    public void setSearcher(Searcher searcher) {
+        this.searcher = searcher;
     }
 
     public void printWelcome() {
@@ -49,6 +64,68 @@ public class ConsoleHelper {
         for (String field : fieldUtil.getFieldNamesInStringOfClass(Organization.class)) {
             System.out.println(field);
         }
+    }
+
+    /**
+     * Display console instructions and handle user input to perform the search.
+     *
+     * @throws InvalidInputException if user input is invalid
+     * @throws IOException           if failed to read or parse the file
+     * @throws InvalidFieldException if the field type is not supported or failed to read field's value from object
+     */
+    public void handleDataSearchInput() throws InvalidInputException, IOException, InvalidFieldException {
+        System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
+        Class searchDataSet = handleSearchDataSetInput();
+        List<String> fields = fieldUtil.getFieldNamesInStringOfClass(searchDataSet);
+
+        System.out.println("Enter search term");
+        String searchTerm = handleSearchTermInput(searchDataSet.getSimpleName(), fields);
+        String fieldName = fieldUtil.converSnakeCaseToCamelCase(searchTerm);
+
+        System.out.println("Enter search value");
+        String searchValue = scanner.nextLine();
+
+        System.out.println();
+
+        if (searchDataSet.equals(User.class)) {
+            List<UserResponse> users = searcher.searchByUsers(fieldName, searchValue);
+            printSearchResult(users, searchTerm, searchValue);
+        } else if (searchDataSet.equals(Organization.class)) {
+            List<OrganizationResponse> orgs = searcher.searchByOrganizations(fieldName, searchValue);
+            printSearchResult(orgs, searchTerm, searchValue);
+        } else if (searchDataSet.equals(Ticket.class)) {
+            List<TicketResponse> tickets = searcher.searchByTickets(fieldName, searchValue);
+            printSearchResult(tickets, searchTerm, searchValue);
+        }
+    }
+
+    private Class handleSearchDataSetInput() throws InvalidInputException {
+        String dataSet = scanner.nextLine();
+        Class searchDataSet;
+        switch (dataSet) {
+            case "1":
+                searchDataSet = User.class;
+                break;
+            case "2":
+                searchDataSet = Ticket.class;
+                break;
+            case "3":
+                searchDataSet = Organization.class;
+                break;
+            default:
+                throw new InvalidInputException(String.format("The option %s is not valid, please try again and select from option 1, 2 or 3.", dataSet));
+        }
+        return searchDataSet;
+    }
+
+    private String handleSearchTermInput(String searchDataSetName, List<String> fields) throws InvalidInputException {
+        String searchTerm = scanner.nextLine();
+        if (!fields.contains(searchTerm)) {
+            throw new InvalidInputException(String.format("The term '%s' can't be found from dataset %s, please try again."
+                    + "\n"
+                    + "Or type 2 to view a list of searchable fields ", searchTerm, searchDataSetName));
+        }
+        return searchTerm;
     }
 
     public <T extends AbstractResponse> void printSearchResult(List<T> results, String searchTerm, String searchValue) {

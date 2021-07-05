@@ -1,4 +1,4 @@
-package com.zendesk.datasearcher.processor;
+package com.zendesk.datasearcher.searcher;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
