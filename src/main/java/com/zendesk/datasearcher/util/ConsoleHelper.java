@@ -14,12 +14,14 @@ import com.zendesk.datasearcher.model.response.OrganizationResponse;
 import com.zendesk.datasearcher.model.response.TicketResponse;
 import com.zendesk.datasearcher.model.response.UserResponse;
 import com.zendesk.datasearcher.searcher.Searcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConsoleHelper {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Scanner scanner = new Scanner(System.in);
     private FieldUtil fieldUtil;
     private Searcher searcher;
@@ -86,7 +88,7 @@ public class ConsoleHelper {
         String searchValue = scanner.nextLine();
 
         System.out.println();
-
+        long start = System.currentTimeMillis();
         if (searchDataSet.equals(User.class)) {
             List<UserResponse> users = searcher.searchByUsers(fieldName, searchValue);
             printSearchResult(users, searchTerm, searchValue);
@@ -97,6 +99,8 @@ public class ConsoleHelper {
             List<TicketResponse> tickets = searcher.searchByTickets(fieldName, searchValue);
             printSearchResult(tickets, searchTerm, searchValue);
         }
+        long end = System.currentTimeMillis();
+        logger.debug(String.format("Search term %s on dataset %s takes %d ms", searchTerm, searchDataSet.getSimpleName(), end - start));
     }
 
     private Class handleSearchDataSetInput() throws InvalidInputException {

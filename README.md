@@ -63,6 +63,21 @@ This project requires `Maven 3.6` to build and `Java 8` to run. Please follow th
 
 Or can just open the project in IDE and start it.
 
+# Search Demo
+
+* Introduction
+  ![Introduction](screenshot/demo/introduction.png)
+* Select a dataset and do the search.
+  ![Select Dataset](screenshot/demo/search-on-user.png)
+* Display all searchable fields
+  ![Searchable Fields](screenshot/demo/searchable-fields.png)
+* Option is invalid
+  ![Invalid Option](screenshot/demo/invalid-option.png)
+* Term is invalid
+  ![Invalid Term](screenshot/demo/invalid-term.png)
+* No Result is available
+  ![No Result Available](screenshot/demo/no-result-found.png)
+
 # Assumptions
 
 * The field name to be searched should be exactly the same as the field in the json file. \
@@ -77,10 +92,17 @@ Or can just open the project in IDE and start it.
 * When search on the list field (tags, domain_names, etc), only one value can be searched. For instance, you can search on the field `tags`
   with value `'tagValue'`, but not on field "tag" with value `['tag1', 'tag2']`
 
+# Tradeoff
+
+This implementation used a "Lazy Init" mode to initialize the indexes - the indexes will only be initialized when it's started to be used.
+Thus the first search will be slower than the subsequence operations because the JSON files will be parsed and indexes will be built in this
+stage.
+
 # How Text Search works?
 
-This implementation is inspired by [Inverted Index](https://www.geeksforgeeks.org/inverted-index/). The key data structure is
-a `Map<String, Map<String, List<Integer>>>`
+This implementation is inspired by Inverted Index(https://www.geeksforgeeks.org/inverted-index/
+and https://nlp.stanford.edu/IR-book/html/htmledition/a-first-take-at-building-an-inverted-index-1.html). The key data structure of my
+implementation is a `Map<String, Map<String, List<Integer>>>`
 
 * Key: the field name.
 * Value: a map containing the field values and their occurrences.
@@ -177,24 +199,9 @@ Based on the dataset, I found the following linkage among User, Ticket and Organ
 
 Based on the linkage defined above, we can easily search on related datasets.
 
-# Performance
+# Performance Analysis
 
-### Time complexity
-
-The current implementation relies on the HashMap to work as index, both PUT and GET operations of HashMap is O(1), thus search response
-times should not increase linearly as the number of documents grows.
-
-### Memory Usage
-
-#### File Processing
-
-The GSON stream reader is used to parse JSON file, the streams operate on one token at a time, thus impose minimal memory
-overhead(https://sites.google.com/site/gson/streaming). Thus file parsing shouldn't introduce high memory usage.
-
-#### Index
-
-There are 3 separate indexes for Users, Tickets and Organizations in this implementation. The indexes store the occurrence information of
-all values of all fields and is kept in memory, thus it may lead to high memory usage.
+Please read [here](PerformanceAnalysis.md) for more information.
 
 # Future Enhancement
 

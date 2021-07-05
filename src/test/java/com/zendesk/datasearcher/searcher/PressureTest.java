@@ -1,7 +1,6 @@
 package com.zendesk.datasearcher.searcher;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,8 +43,6 @@ public class PressureTest {
 
         InvertedIndex index = TestHelper.getInvertedIndex(env);
         searcher.setInvertedIndex(index);
-
-//        Thread.sleep(1000);//sleep for 1s to make sure file is flushed
     }
 
     private List<String> generateListOfRandomString(int len) {
@@ -149,7 +146,7 @@ public class PressureTest {
 
     @Test(enabled = false)
     void pressureTest() {
-        try{
+        try {
             searcher.searchByUsers("_id", "100");
             searcher.searchByUsers("external_id", "c9995ea4-ff72-46e0-ab77-dfe0ae1ef6c2");
             searcher.searchByUsers("active", "true");
@@ -157,7 +154,7 @@ public class PressureTest {
             searcher.searchByUsers("tags", "Foxworth");
             searcher.searchByUsers("tags", "");
             searcher.searchByUsers("invalidField", "whatever");
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Assert.fail();
         }
