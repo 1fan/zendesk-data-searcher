@@ -32,6 +32,18 @@ This project requires `Maven 3.6` to build and `Java 8` to run. Please follow th
     $ cd zendesk-data-searcher
     $ ./clean-and-build.sh
     ```
+   After this step, you should be able to see a new 'deployment' folder with the following structure:
+    ```
+    .
+    ..
+    +-- datasearcher-0.0.1-SNAPSHOT.jar
+    +-- run.sh
+    +-- config
+    |   +-- application.properties
+    |   +-- organization.json
+    |   +-- users.json
+    |   +-- tickets.json
+    ```   
 
 3. Go to the `./deployment` folder.\
    You can change the configuration if needed. By default, configuration file and json files are all put in `./config` folder, you can
@@ -56,14 +68,14 @@ Or can just open the project in IDE and start it.
 * The field name to be searched should be exactly the same as the field in the json file. \
   For instance, if the field in the json is "_id", you should also type "_id" to search, otherwise the search will fail.
 * Assume the json files are valid JSON file, and the format matches the model classes. \
-  Currently json file only support the following field types:
+  Currently json files containing the following field types are supported:
     - Number
     - String
     - Boolean
     - Array of above.
 * JSON files should be provided. If file is not provided, the default files in the jar will be used.
-* When search on the list(tags, domain_names, etc), only one value can be searched. For instance, you can search on field "tag" with
-  value `tagValue`, but not on field "tag" with value `['tag1', 'tag2']`
+* When search on the list field (tags, domain_names, etc), only one value can be searched. For instance, you can search on the field `tags`
+  with value `'tagValue'`, but not on field "tag" with value `['tag1', 'tag2']`
 
 # How Text Search works?
 
@@ -75,7 +87,7 @@ a `Map<String, Map<String, List<Integer>>>`
     * key: field value
     * value: List of Integer represents the indexes of json that this value occurs.
 
-For instance, When we read a JSON user1,
+For instance, when we read a JSON user1:
 
 ```
 {
@@ -89,7 +101,7 @@ For instance, When we read a JSON user1,
   }
 ```
 
-the index will be built as
+the User index will be built as
 
 ```
 {
@@ -122,7 +134,7 @@ Then the second JSON user 2 is read:
   }
 ```
 
-The index will be updated to
+The User index will be updated to
 
 ```
 {
@@ -163,7 +175,7 @@ Based on the dataset, I found the following linkage among User, Ticket and Organ
     - 1 User can link to multiple Tickets as assignee where User._id equals to Ticket.assignee_id;
     - 1 User can link to 1 Organization where User.organization_id equals to organization._id;
 
-Based on the linkage defined above, we can seaerch on related datasets easily.
+Based on the linkage defined above, we can easily search on related datasets.
 
 # Performance
 
@@ -177,7 +189,7 @@ times should not increase linearly as the number of documents grows.
 #### File Processing
 
 The GSON stream reader is used to parse JSON file, the streams operate on one token at a time, thus impose minimal memory
-overhead(https://sites.google.com/site/gson/streaming)
+overhead(https://sites.google.com/site/gson/streaming). Thus file parsing shouldn't introduce high memory usage.
 
 #### Index
 
@@ -192,6 +204,7 @@ all values of all fields and is kept in memory, thus it may lead to high memory 
 * Support range search \
   Currently the search only matches the exact value. We can make it support a range search. For instance, search on User whose
   organization_id is among [100, 101, 102, 103], or Tickets created_at between (2021-01-01T00:00:00 UTC, 2021-01-07T00:00:00: UTC)
-* Make key fields configurable \
-  In the current implementation, the summary of related dataset is restricted to a certain hardcoded key fields. We can consider these key
-  fields to be configurable to cater for different user scenarios, so that we can display different summary under different circumstances. 
+* Make summary key fields configurable \
+  In the current implementation, the summary of a dataset is restricted to a certain hardcoded key fields. For instance, the summary of User
+  will only contain 'name', 'alias' and 'url'. We can make the key fields configurable to cater for different scenarios, so that we can
+  display different summary under different circumstances. 
