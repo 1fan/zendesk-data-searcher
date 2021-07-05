@@ -58,12 +58,14 @@ public abstract class AbstractEntity {
 
     /**
      * Get the summary of the entity by including the key fields only.
+     *
      * @return Get the summary of the entity.
      */
     public abstract String getSummary();
 
     /**
      * Get all fields' value of the entity into String to be displayed.
+     *
      * @return the entity value in String including all fields.
      */
     public abstract String toString();

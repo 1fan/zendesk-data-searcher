@@ -6,6 +6,7 @@ import com.zendesk.datasearcher.model.entity.AbstractEntity;
 
 public abstract class AbstractResponse {
 
+    //enforce all children classes to implement this function
     public abstract String toString();
 
     protected <T extends AbstractEntity> String getSummaryOfListOfEntities(List<T> entities) {

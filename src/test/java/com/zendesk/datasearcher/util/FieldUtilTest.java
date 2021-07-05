@@ -35,19 +35,19 @@ public class FieldUtilTest {
 
     @Test
     void shouldConvertTextFromSnakeToCamel() {
-        Assert.assertEquals(fieldUtil.converSnaketToCamelNamingConvention("_id"), "id");
-        Assert.assertEquals(fieldUtil.converSnaketToCamelNamingConvention("submitter_id"), "submitterId");
-        Assert.assertEquals(fieldUtil.converSnaketToCamelNamingConvention("assignee_id"), "assigneeId");
-        Assert.assertEquals(fieldUtil.converSnaketToCamelNamingConvention("description"), "description");
-        Assert.assertEquals(fieldUtil.converSnaketToCamelNamingConvention(""), "");
+        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("_id"), "id");
+        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("submitter_id"), "submitterId");
+        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("assignee_id"), "assigneeId");
+        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("description"), "description");
+        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase(""), "");
     }
 
     @Test
     void shouldConvertTextFromCamelToSnake() {
-        Assert.assertEquals(fieldUtil.convertCamelToSnakeNamingConvention("id"), "_id");
-        Assert.assertEquals(fieldUtil.convertCamelToSnakeNamingConvention("submitterId"), "submitter_id");
-        Assert.assertEquals(fieldUtil.convertCamelToSnakeNamingConvention("assigneeId"), "assignee_id");
-        Assert.assertEquals(fieldUtil.convertCamelToSnakeNamingConvention(""), "");
+        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("id"), "_id");
+        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("submitterId"), "submitter_id");
+        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("assigneeId"), "assignee_id");
+        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase(""), "");
     }
 
     @Test

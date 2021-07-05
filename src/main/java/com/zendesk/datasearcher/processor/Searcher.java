@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Processor {
+public class Searcher {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,15 +28,24 @@ public class Processor {
         this.invertedIndex = invertedIndex;
     }
 
-    public List<TicketResponse> searchByTickets(String searchTerm, String searchValue) throws IOException, InvalidFieldException {
+    /**
+     * Perform search on the Ticket dataset for the given term and given value.
+     *
+     * @param fieldName  the field name to search on. This field name should be consistent with the {@link Ticket} class field name.
+     * @param fieldValue the value of the field name.
+     * @return a List of {@link TicketResponse} that satisfy the search criteria.
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
+    public List<TicketResponse> searchByTickets(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<TicketResponse> ticketResponses = new ArrayList<>();
-        List<Ticket> tickets = invertedIndex.lookUpTickets(searchTerm, searchValue);
+        List<Ticket> tickets = invertedIndex.lookUpTickets(fieldName, fieldValue);
         if (tickets == null || tickets.size() == 0) {
             //not found
-            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
+            logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
         } else {
             //found
-            logger.info(String.format("Found %d Tickets whose %s is '%s':", tickets.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            logger.info(String.format("Found %d Tickets whose %s is '%s':", tickets.size(), fieldName, "".equals(fieldValue) ? "empty" : fieldValue));
             for (Ticket ticket : tickets) {
                 TicketResponse ticketRsp = new TicketResponse();
                 ticketRsp.setTicket(ticket);
@@ -49,16 +58,25 @@ public class Processor {
         return ticketResponses;
     }
 
-    public List<OrganizationResponse> searchByOrganizations(String searchTerm, String searchValue) throws IOException, InvalidFieldException {
+    /**
+     * Perform search on the Organization dataset for the given term and given value.
+     *
+     * @param fieldName  the field name to search on. This field name should be consistent with the {@link Organization} class field name.
+     * @param fieldValue the value of the field name.
+     * @return a List of {@link OrganizationResponse} that satisfy the search criteria.
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
+    public List<OrganizationResponse> searchByOrganizations(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<OrganizationResponse> orgResponses = new ArrayList<>();
 
-        List<Organization> organizations = invertedIndex.lookUpOrganizations(searchTerm, searchValue);
+        List<Organization> organizations = invertedIndex.lookUpOrganizations(fieldName, fieldValue);
         if (organizations == null || organizations.size() == 0) {
             //not found
-            logger.info(String.format("No available data for searched term %s with value '%s'.", searchTerm, searchValue));
+            logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
         } else {
             //found
-            logger.info(String.format("Found %d Organizations whose %s is %s:", organizations.size(), searchTerm, "".equals(searchValue) ? "empty" : searchValue));
+            logger.info(String.format("Found %d Organizations whose %s is %s:", organizations.size(), fieldName, "".equals(fieldValue) ? "empty" : fieldValue));
             for (Organization org : organizations) {
                 OrganizationResponse orgRsp = new OrganizationResponse();
                 orgRsp.setOrganization(org);
@@ -70,6 +88,15 @@ public class Processor {
         return orgResponses;
     }
 
+    /**
+     * Perform search on the User dataset for the given term and given value.
+     *
+     * @param fieldName  the field name to search on. This field name should be consistent with the {@link User} class field name.
+     * @param fieldValue the value of the field name.
+     * @return a List of {@link UserResponse} that satisfy the search criteria.
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
     public List<UserResponse> searchByUsers(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<UserResponse> userResponses = new ArrayList<>();
 
@@ -92,6 +119,7 @@ public class Processor {
         return userResponses;
     }
 
+    //search User by '_id' field
     private User getUserWithId(String id) throws IOException, InvalidFieldException {
         List<User> results = invertedIndex.lookUpUser("id", id);
         if (results == null || results.isEmpty()) {
@@ -102,6 +130,7 @@ public class Processor {
         }
     }
 
+    //search Organization by '_id' field
     private Organization getOrganizationWithId(String id) throws IOException, InvalidFieldException {
         List<Organization> orgs = invertedIndex.lookUpOrganizations("id", id);
         if (orgs == null || orgs.isEmpty()) {

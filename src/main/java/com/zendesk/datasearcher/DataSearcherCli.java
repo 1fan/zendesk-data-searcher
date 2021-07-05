@@ -12,7 +12,7 @@ import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.OrganizationResponse;
 import com.zendesk.datasearcher.model.response.TicketResponse;
 import com.zendesk.datasearcher.model.response.UserResponse;
-import com.zendesk.datasearcher.processor.Processor;
+import com.zendesk.datasearcher.processor.Searcher;
 import com.zendesk.datasearcher.util.ConsoleHelper;
 import com.zendesk.datasearcher.util.FieldUtil;
 import org.slf4j.Logger;
@@ -26,14 +26,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class DataSearcherCli implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private Processor processor;
+    private final Scanner scanner = new Scanner(System.in);
+    private Searcher searcher;
     private ConsoleHelper consoleHelper;
     private FieldUtil fieldUtil;
 
+    public static void main(String[] args) {
+        SpringApplication.run(DataSearcherCli.class, args);
+    }
+
     @Autowired
-    public void setProcessor(Processor processor) {
-        this.processor = processor;
+    public void setProcessor(Searcher searcher) {
+        this.searcher = searcher;
     }
 
     @Autowired
@@ -44,12 +48,6 @@ public class DataSearcherCli implements CommandLineRunner {
     @Autowired
     public void setFieldUtil(FieldUtil fieldUtil) {
         this.fieldUtil = fieldUtil;
-    }
-
-    private final Scanner scanner = new Scanner(System.in);
-
-    public static void main(String[] args) {
-        SpringApplication.run(DataSearcherCli.class, args);
     }
 
     @Override
@@ -89,19 +87,19 @@ public class DataSearcherCli implements CommandLineRunner {
 
         System.out.println("Enter search term");
         String searchTerm = processSearchTermInput(searchDataSet.getSimpleName(), fields);
-        String fieldName = fieldUtil.converSnaketToCamelNamingConvention(searchTerm);
+        String fieldName = fieldUtil.converSnakeCaseToCamelCase(searchTerm);
 
         System.out.println("Enter search value");
         String searchValue = scanner.nextLine();
 
         if (searchDataSet.equals(User.class)) {
-            List<UserResponse> users = processor.searchByUsers(fieldName, searchValue);
+            List<UserResponse> users = searcher.searchByUsers(fieldName, searchValue);
             consoleHelper.printSearchResult(users, searchTerm, searchValue);
         } else if (searchDataSet.equals(Organization.class)) {
-            List<OrganizationResponse> orgs = processor.searchByOrganizations(fieldName, searchValue);
+            List<OrganizationResponse> orgs = searcher.searchByOrganizations(fieldName, searchValue);
             consoleHelper.printSearchResult(orgs, searchTerm, searchValue);
         } else if (searchDataSet.equals(Ticket.class)) {
-            List<TicketResponse> tickets = processor.searchByTickets(fieldName, searchValue);
+            List<TicketResponse> tickets = searcher.searchByTickets(fieldName, searchValue);
             consoleHelper.printSearchResult(tickets, searchTerm, searchValue);
         }
     }

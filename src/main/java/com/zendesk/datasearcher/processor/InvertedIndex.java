@@ -18,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+/**
+ * This class maintains the inverted index for User, Ticket and Organization datasets, and provides functions to search on the index for a given field and value.
+ */
 @Component
 public class InvertedIndex {
     private Environment env;
@@ -46,33 +49,60 @@ public class InvertedIndex {
         this.jsonReader = jsonReader;
     }
 
-    public List<User> lookUpUser(String term, String value) throws IOException, InvalidFieldException {
+    /**
+     * Search on User index with the given field name and value.
+     *
+     * @param fieldName  the field name to search on. The field name should be one of the attribute names in {@link User}.
+     * @param fieldValue the value to search
+     * @return A List of {@link User} that matches the search criteria
+     * @throws IOException           when failed to process the JSON file
+     * @throws InvalidFieldException when the field type is not supported, or failed to read field value from {@link User} object.
+     */
+    public List<User> lookUpUser(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         if (this.usersIndex == null) {
             String usersFilePath = env.getProperty("users.filepath", "users.json");
             this.users = jsonReader.parseJson(usersFilePath, User.class);
             this.usersIndex = buildIndex(users);
         }
 
-        return lookUpValueFromIndex(usersIndex, users, term, value);
+        return lookUpValueFromIndex(usersIndex, users, fieldName, fieldValue);
     }
 
-    public List<Ticket> lookUpTickets(String term, String value) throws IOException, InvalidFieldException {
+    /**
+     * Search on Ticket index with the given field name and value.
+     *
+     * @param fieldName  the field name to search on. The field name should be one of the attribute names in {@link Ticket}.
+     * @param fieldValue the value to search
+     * @return A List of {@link Ticket} that matches the search criteria
+     * @throws IOException           when failed to process the JSON file
+     * @throws InvalidFieldException when the field type is not supported, or failed to read field value from {@link Ticket} object.
+     */
+    public List<Ticket> lookUpTickets(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         if (this.ticketsIndex == null) {
             String ticketsFilePath = env.getProperty("tickets.filepath", "tickets.json");
             this.tickets = jsonReader.parseJson(ticketsFilePath, Ticket.class);
             this.ticketsIndex = buildIndex(tickets);
         }
 
-        return lookUpValueFromIndex(ticketsIndex, tickets, term, value);
+        return lookUpValueFromIndex(ticketsIndex, tickets, fieldName, fieldValue);
     }
 
-    public List<Organization> lookUpOrganizations(String term, String value) throws IOException, InvalidFieldException {
+    /**
+     * Search on Organization index with the given field name and value.
+     *
+     * @param fieldName  the field name to search on. The field name should be one of the attribute names in {@link Organization}.
+     * @param fieldValue the value to search
+     * @return A List of {@link Organization} that matches the search criteria
+     * @throws IOException           when failed to process the JSON file
+     * @throws InvalidFieldException when the field type is not supported, or failed to read field value from {@link Organization} object.
+     */
+    public List<Organization> lookUpOrganizations(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         if (this.organizationsIndex == null) {
             String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
             this.organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
             this.organizationsIndex = buildIndex(organizations);
         }
-        return lookUpValueFromIndex(organizationsIndex, organizations, term, value);
+        return lookUpValueFromIndex(organizationsIndex, organizations, fieldName, fieldValue);
     }
 
     private <T extends AbstractEntity> List<T> lookUpValueFromIndex(Map<String, Map<String, List<Integer>>> index, List<T> items, String searchTerm, String searchValue) {
@@ -91,6 +121,25 @@ public class InvertedIndex {
         }
     }
 
+    /**
+     * Build the inverted index using the given list of dataset.
+     *
+     * @param elements a List of objects to be processed
+     * @param <T>      extends {@link AbstractEntity}
+     * @return the built inverted index in the format of {@code Map<String, Map<String, List<Integer>>>}.
+     * <ul>
+     *     <li>key: field name</li>
+     *     <li>
+     *         value: a Map contains statistics of all values of this field and occurrences
+     *         <ul>
+     *             <li>key: field value</li>
+     *             <li>value: a List of Integer represents the index that the value occurred in the given list</li>
+     *         </ul>
+     *     </li>
+     *
+     * </ul>
+     * @throws InvalidFieldException when the field type is not supported, or failed to read the field's value from the object
+     */
     private <T extends AbstractEntity> Map<String, Map<String, List<Integer>>> buildIndex(List<T> elements) throws InvalidFieldException {
         Map<String, Map<String, List<Integer>>> index = new HashMap<>();
         for (int i = 0; i < elements.size(); i++) {
@@ -124,8 +173,8 @@ public class InvertedIndex {
     }
 
     private void updateFieldStatisticsWithValue(String fieldValue, Map<String, List<Integer>> fieldStats, int index) {
-        List<Integer> valueOccurance = fieldStats.getOrDefault(fieldValue, new ArrayList<>());
-        valueOccurance.add(index);
-        fieldStats.put(fieldValue, valueOccurance);
+        List<Integer> valueOccurrences = fieldStats.getOrDefault(fieldValue, new ArrayList<>());
+        valueOccurrences.add(index);
+        fieldStats.put(fieldValue, valueOccurrences);
     }
 }
