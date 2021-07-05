@@ -24,7 +24,7 @@ public class SearcherTest {
     @BeforeMethod
     void setUp() {
         searcher = new Searcher();
-        searcher.setInvertedIndex(TestHelper.getInvertedIndex());
+        searcher.setInvertedIndex(TestHelper.getInvertedIndex(TestHelper.getMockEnv()));
 
         user1 = TestHelper.getUser1();
         user2 = TestHelper.getUser2();

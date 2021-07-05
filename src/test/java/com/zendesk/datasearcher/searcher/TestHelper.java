@@ -20,9 +20,9 @@ public class TestHelper {
         return mockEnv;
     }
 
-    protected static InvertedIndex getInvertedIndex() {
+    protected static InvertedIndex getInvertedIndex(Environment env) {
         InvertedIndex invertedIndex = new InvertedIndex();
-        invertedIndex.setEnv(getMockEnv());
+        invertedIndex.setEnv(env);
         invertedIndex.setJsonReader(new JsonFileReader());
         invertedIndex.setFieldUtil(new FieldUtil());
 
