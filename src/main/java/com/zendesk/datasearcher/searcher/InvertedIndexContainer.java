@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * This class maintains the inverted index for User, Ticket and Organization datasets, and provides functions to search on the index for a given field and value.
  */
 @Component
-public class InvertedIndex {
+public class InvertedIndexContainer {
     private Environment env;
     private FieldUtil fieldUtil;
     private JsonFileReader jsonReader;

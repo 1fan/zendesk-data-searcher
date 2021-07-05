@@ -41,7 +41,7 @@ public class PressureTest {
         Mockito.when(env.getProperty(Mockito.eq("tickets.filepath"), Mockito.eq("tickets.json"))).thenReturn(ticketFileName);
         Mockito.when(env.getProperty(Mockito.eq("organizations.filepath"), Mockito.eq("organizations.json"))).thenReturn(organizationFileName);
 
-        InvertedIndex index = TestHelper.getInvertedIndex(env);
+        InvertedIndexContainer index = TestHelper.getInvertedIndex(env);
         searcher.setInvertedIndex(index);
     }
 

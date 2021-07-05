@@ -50,14 +50,14 @@ public class DataSearcherCli implements CommandLineRunner {
                         throw new InvalidInputException("Invalid option selected! Please ensure select from '1' or '2'.");
                 }
             } catch (InvalidInputException e) {
-                //user input is invalid, just print out the error message to inform the user what's wrong.
+                //user input is invalid, just print out the error message to inform the user why why search failed.
                 System.out.println("Please check your input: " + e.getMessage());
             } catch (InvalidFieldException e) {
-                //field is not supported, or failed to read the field's value from object, we need to log it and inform the user what's going on.
+                //field is not supported, or failed to read the field's value from object, we need to log it and inform the user why search failed.
                 logger.warn("Search failed: ", e);
                 System.out.println("Search failed: " + e.getMessage());
             } catch (IOException e) {
-                //File processing failed, developer/devops need to check the file path, etc
+                //File processing failed, developer/devops need to check the files are valid.
                 logger.warn("Search failed: ", e);
                 System.out.println("Search failed: " + e);
                 System.out.println("Please contact yifanwanghit@gmail.com for supports");

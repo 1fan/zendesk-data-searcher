@@ -20,13 +20,13 @@ public class TestHelper {
         return mockEnv;
     }
 
-    protected static InvertedIndex getInvertedIndex(Environment env) {
-        InvertedIndex invertedIndex = new InvertedIndex();
-        invertedIndex.setEnv(env);
-        invertedIndex.setJsonReader(new JsonFileReader());
-        invertedIndex.setFieldUtil(new FieldUtil());
+    protected static InvertedIndexContainer getInvertedIndex(Environment env) {
+        InvertedIndexContainer invertedIndexContainer = new InvertedIndexContainer();
+        invertedIndexContainer.setEnv(env);
+        invertedIndexContainer.setJsonReader(new JsonFileReader());
+        invertedIndexContainer.setFieldUtil(new FieldUtil());
 
-        return invertedIndex;
+        return invertedIndexContainer;
     }
 
     protected static User getUser1() {

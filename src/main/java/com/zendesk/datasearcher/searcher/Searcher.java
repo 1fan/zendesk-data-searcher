@@ -21,11 +21,11 @@ public class Searcher {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private InvertedIndex invertedIndex;
+    private InvertedIndexContainer invertedIndexContainer;
 
     @Autowired
-    public void setInvertedIndex(InvertedIndex invertedIndex) {
-        this.invertedIndex = invertedIndex;
+    public void setInvertedIndex(InvertedIndexContainer invertedIndexContainer) {
+        this.invertedIndexContainer = invertedIndexContainer;
     }
 
     /**
@@ -39,7 +39,7 @@ public class Searcher {
      */
     public List<TicketResponse> searchByTickets(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<TicketResponse> ticketResponses = new ArrayList<>();
-        List<Ticket> tickets = invertedIndex.lookUpTickets(fieldName, fieldValue);
+        List<Ticket> tickets = invertedIndexContainer.lookUpTickets(fieldName, fieldValue);
         if (tickets == null || tickets.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -73,7 +73,7 @@ public class Searcher {
     public List<OrganizationResponse> searchByOrganizations(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<OrganizationResponse> orgResponses = new ArrayList<>();
 
-        List<Organization> organizations = invertedIndex.lookUpOrganizations(fieldName, fieldValue);
+        List<Organization> organizations = invertedIndexContainer.lookUpOrganizations(fieldName, fieldValue);
         if (organizations == null || organizations.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -84,9 +84,9 @@ public class Searcher {
                 OrganizationResponse orgRsp = new OrganizationResponse();
                 orgRsp.setOrganization(org);
                 //related users
-                orgRsp.setOrgUsers(invertedIndex.lookUpUser("organizationId", org.getId()));
+                orgRsp.setOrgUsers(invertedIndexContainer.lookUpUser("organizationId", org.getId()));
                 //related tickets
-                orgRsp.setOrgTickets(invertedIndex.lookUpTickets("organizationId", org.getId()));
+                orgRsp.setOrgTickets(invertedIndexContainer.lookUpTickets("organizationId", org.getId()));
                 orgResponses.add(orgRsp);
             }
         }
@@ -105,7 +105,7 @@ public class Searcher {
     public List<UserResponse> searchByUsers(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
         List<UserResponse> userResponses = new ArrayList<>();
 
-        List<User> users = invertedIndex.lookUpUser(fieldName, fieldValue);
+        List<User> users = invertedIndexContainer.lookUpUser(fieldName, fieldValue);
         if (users == null || users.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -118,9 +118,9 @@ public class Searcher {
                 //related org
                 userResponse.setUserOrganization(getOrganizationWithId(user.getOrganizationId()));
                 //related tickets - submitted by the user
-                userResponse.setSubmittedTickets(invertedIndex.lookUpTickets("submitterId", user.getId()));
+                userResponse.setSubmittedTickets(invertedIndexContainer.lookUpTickets("submitterId", user.getId()));
                 //related tickets - assigned by the user
-                userResponse.setAssignedTickets(invertedIndex.lookUpTickets("assigneeId", user.getId()));
+                userResponse.setAssignedTickets(invertedIndexContainer.lookUpTickets("assigneeId", user.getId()));
                 userResponses.add(userResponse);
             }
         }
@@ -129,7 +129,7 @@ public class Searcher {
 
     //search User by '_id' field
     private User getUserWithId(String id) throws IOException, InvalidFieldException {
-        List<User> results = invertedIndex.lookUpUser("id", id);
+        List<User> results = invertedIndexContainer.lookUpUser("id", id);
         if (results == null || results.isEmpty()) {
             return null;
         } else {
@@ -140,7 +140,7 @@ public class Searcher {
 
     //search Organization by '_id' field
     private Organization getOrganizationWithId(String id) throws IOException, InvalidFieldException {
-        List<Organization> orgs = invertedIndex.lookUpOrganizations("id", id);
+        List<Organization> orgs = invertedIndexContainer.lookUpOrganizations("id", id);
         if (orgs == null || orgs.isEmpty()) {
             return null;
         } else {

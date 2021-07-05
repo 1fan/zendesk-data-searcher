@@ -11,8 +11,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class InvertedIndexTest {
-    private InvertedIndex invertedIndex = new InvertedIndex();
+public class InvertedIndexContainerTest {
+    private InvertedIndexContainer invertedIndexContainer = new InvertedIndexContainer();
 
     private User user1;
     private User user2;
@@ -23,9 +23,9 @@ public class InvertedIndexTest {
 
     @BeforeMethod
     private void setUp() {
-        invertedIndex.setEnv(TestHelper.getMockEnv());
-        invertedIndex.setJsonReader(new JsonFileReader());
-        invertedIndex.setFieldUtil(new FieldUtil());
+        invertedIndexContainer.setEnv(TestHelper.getMockEnv());
+        invertedIndexContainer.setJsonReader(new JsonFileReader());
+        invertedIndexContainer.setFieldUtil(new FieldUtil());
 
         user1 = TestHelper.getUser1();
         user2 = TestHelper.getUser2();
@@ -49,56 +49,56 @@ public class InvertedIndexTest {
     void shouldBuildOrganizationIndexProperly() {
         try {
             //on string fields
-            List<Organization> searchResultById1 = invertedIndex.lookUpOrganizations("id", "119");
+            List<Organization> searchResultById1 = invertedIndexContainer.lookUpOrganizations("id", "119");
             Assert.assertEquals(searchResultById1.size(), 1);
             Assert.assertEquals(searchResultById1.get(0), organization1);
-            List<Organization> searchResultById2 = invertedIndex.lookUpOrganizations("id", "120");
+            List<Organization> searchResultById2 = invertedIndexContainer.lookUpOrganizations("id", "120");
             Assert.assertEquals(searchResultById2.size(), 1);
             Assert.assertEquals(searchResultById2.get(0), organization2);
 
-            List<Organization> searchResultByCreatedAt = invertedIndex.lookUpOrganizations("createdAt", "2016-01-15T04:11:08 -11:00");
+            List<Organization> searchResultByCreatedAt = invertedIndexContainer.lookUpOrganizations("createdAt", "2016-01-15T04:11:08 -11:00");
             Assert.assertEquals(searchResultByCreatedAt.size(), 1);
             Assert.assertEquals(searchResultByCreatedAt.get(0), organization2);
 
             //on boolean field
-            List<Organization> searchBySharedTicketsTrue = invertedIndex.lookUpOrganizations("sharedTickets", "true");
+            List<Organization> searchBySharedTicketsTrue = invertedIndexContainer.lookUpOrganizations("sharedTickets", "true");
             Assert.assertEquals(searchBySharedTicketsTrue.size(), 0);
 
-            List<Organization> searchBySharedTicketsFalse = invertedIndex.lookUpOrganizations("sharedTickets", "false");
+            List<Organization> searchBySharedTicketsFalse = invertedIndexContainer.lookUpOrganizations("sharedTickets", "false");
             Assert.assertEquals(searchBySharedTicketsFalse.size(), 2);
             Assert.assertTrue(searchBySharedTicketsFalse.contains(organization1));
             Assert.assertTrue(searchBySharedTicketsFalse.contains(organization2));
 
             //on List(Tag, domainNames)
-            List<Organization> searchByTag = invertedIndex.lookUpOrganizations("tags", "Erickson");
+            List<Organization> searchByTag = invertedIndexContainer.lookUpOrganizations("tags", "Erickson");
             Assert.assertEquals(searchByTag.size(), 1);
             Assert.assertTrue(searchByTag.contains(organization1));
 
-            List<Organization> searchByDomainNames = invertedIndex.lookUpOrganizations("domainNames", "bleeko.com");
+            List<Organization> searchByDomainNames = invertedIndexContainer.lookUpOrganizations("domainNames", "bleeko.com");
             Assert.assertEquals(searchByDomainNames.size(), 1);
             Assert.assertTrue(searchByDomainNames.contains(organization1));
 
             //on empty field - on tags
-            List<Organization> searchByEmptyTag = invertedIndex.lookUpOrganizations("tags", "");
+            List<Organization> searchByEmptyTag = invertedIndexContainer.lookUpOrganizations("tags", "");
             Assert.assertEquals(searchByEmptyTag.size(), 1);
             Assert.assertTrue(searchByEmptyTag.contains(organization2));
 
             //on null field - on domain_names
-            List<Organization> searchByEmptyyDomainNames = invertedIndex.lookUpOrganizations("domainNames", "");
+            List<Organization> searchByEmptyyDomainNames = invertedIndexContainer.lookUpOrganizations("domainNames", "");
             Assert.assertEquals(searchByEmptyyDomainNames.size(), 1);
             Assert.assertTrue(searchByEmptyyDomainNames.contains(organization2));
 
             //on null field - on details
-            List<Organization> searchByEmptyDetails = invertedIndex.lookUpOrganizations("details", "");
+            List<Organization> searchByEmptyDetails = invertedIndexContainer.lookUpOrganizations("details", "");
             Assert.assertEquals(searchByEmptyDetails.size(), 1);
             Assert.assertTrue(searchByEmptyDetails.contains(organization2));
 
             //on value not found
-            List<User> searchOnNotFound = invertedIndex.lookUpUser("name", "who am I?");
+            List<User> searchOnNotFound = invertedIndexContainer.lookUpUser("name", "who am I?");
             Assert.assertEquals(searchOnNotFound.size(), 0);
 
             //on field not existed
-            List<User> searchOnInvalidFieldName = invertedIndex.lookUpUser("invalidField", "whateverValue");
+            List<User> searchOnInvalidFieldName = invertedIndexContainer.lookUpUser("invalidField", "whateverValue");
             Assert.assertEquals(searchOnInvalidFieldName.size(), 0);
 
         } catch (Exception e) {
@@ -121,54 +121,54 @@ public class InvertedIndexTest {
     void shouldBuildUserIndexProperly() {
         try {
             //on string fields
-            List<User> searchResultById = invertedIndex.lookUpUser("id", "1");
+            List<User> searchResultById = invertedIndexContainer.lookUpUser("id", "1");
             Assert.assertEquals(searchResultById.size(), 1);
             Assert.assertEquals(searchResultById.get(0), user1);
 
-            List<User> searchResultByCreatedAt = invertedIndex.lookUpUser("createdAt", "2016-04-15T05:19:46 -10:00");
+            List<User> searchResultByCreatedAt = invertedIndexContainer.lookUpUser("createdAt", "2016-04-15T05:19:46 -10:00");
             Assert.assertEquals(searchResultByCreatedAt.size(), 1);
             Assert.assertEquals(searchResultByCreatedAt.get(0), user1);
 
-            List<User> searchResultByOrgId = invertedIndex.lookUpUser("organizationId", "119");
+            List<User> searchResultByOrgId = invertedIndexContainer.lookUpUser("organizationId", "119");
             Assert.assertEquals(searchResultByOrgId.size(), 1);
             Assert.assertEquals(searchResultByOrgId.get(0), user1);
 
             //on boolean field
-            List<User> searchByActive = invertedIndex.lookUpUser("active", "true");
+            List<User> searchByActive = invertedIndexContainer.lookUpUser("active", "true");
             Assert.assertEquals(searchByActive.size(), 2);
             Assert.assertTrue(searchByActive.contains(user1));
             Assert.assertTrue(searchByActive.contains(user2));
 
-            List<User> searchBySuspended = invertedIndex.lookUpUser("suspended", "false");
+            List<User> searchBySuspended = invertedIndexContainer.lookUpUser("suspended", "false");
             Assert.assertEquals(searchBySuspended.size(), 1);
             Assert.assertTrue(searchBySuspended.contains(user2));
 
             //on tags
-            List<User> searchByTag = invertedIndex.lookUpUser("tags", "Sutton");
+            List<User> searchByTag = invertedIndexContainer.lookUpUser("tags", "Sutton");
             Assert.assertEquals(searchByTag.size(), 1);
             Assert.assertTrue(searchByTag.contains(user1));
 
-            List<User> searchByCommonTag = invertedIndex.lookUpUser("tags", "common-tag");
+            List<User> searchByCommonTag = invertedIndexContainer.lookUpUser("tags", "common-tag");
             Assert.assertEquals(searchByCommonTag.size(), 2);
             Assert.assertTrue(searchByCommonTag.contains(user1));
             Assert.assertTrue(searchByCommonTag.contains(user2));
 
             //on empty field
-            List<User> searchOnEmpty = invertedIndex.lookUpUser("signature", "");
+            List<User> searchOnEmpty = invertedIndexContainer.lookUpUser("signature", "");
             Assert.assertEquals(searchOnEmpty.size(), 1);
             Assert.assertTrue(searchOnEmpty.contains(user2));
 
             //on null field
-            List<User> searchOnNull = invertedIndex.lookUpUser("phone", "");
+            List<User> searchOnNull = invertedIndexContainer.lookUpUser("phone", "");
             Assert.assertEquals(searchOnNull.size(), 1);
             Assert.assertTrue(searchOnNull.contains(user2));
 
             //on value not found
-            List<User> searchOnNotFound = invertedIndex.lookUpUser("alias", "aaaaalias");
+            List<User> searchOnNotFound = invertedIndexContainer.lookUpUser("alias", "aaaaalias");
             Assert.assertEquals(searchOnNotFound.size(), 0);
 
             //on field name not existed
-            List<User> searchOnInvalidFieldName = invertedIndex.lookUpUser("invalidField", "whateverValue");
+            List<User> searchOnInvalidFieldName = invertedIndexContainer.lookUpUser("invalidField", "whateverValue");
             Assert.assertEquals(searchOnInvalidFieldName.size(), 0);
 
         } catch (Exception e) {
@@ -191,62 +191,62 @@ public class InvertedIndexTest {
     void shouldBuildTicketIndexProperly() {
         try {
             //on string fields
-            List<Ticket> searchResultById = invertedIndex.lookUpTickets("id", "436bf9b0-1147-4c0a-8439-6f79833bff5b");
+            List<Ticket> searchResultById = invertedIndexContainer.lookUpTickets("id", "436bf9b0-1147-4c0a-8439-6f79833bff5b");
             Assert.assertEquals(searchResultById.size(), 1);
             Assert.assertEquals(searchResultById.get(0), ticket1);
 
-            List<Ticket> searchResultByCreatedAt = invertedIndex.lookUpTickets("externalId", "9210cdc9-4bee-485f-a078-35396cd74063");
+            List<Ticket> searchResultByCreatedAt = invertedIndexContainer.lookUpTickets("externalId", "9210cdc9-4bee-485f-a078-35396cd74063");
             Assert.assertEquals(searchResultByCreatedAt.size(), 1);
             Assert.assertEquals(searchResultByCreatedAt.get(0), ticket1);
 
-            List<Ticket> searchResultByOrgId = invertedIndex.lookUpTickets("organizationId", "119");
+            List<Ticket> searchResultByOrgId = invertedIndexContainer.lookUpTickets("organizationId", "119");
             Assert.assertEquals(searchResultByOrgId.size(), 1);
             Assert.assertEquals(searchResultByOrgId.get(0), ticket1);
 
-            List<Ticket> searchResultByType = invertedIndex.lookUpTickets("type", "incident");
+            List<Ticket> searchResultByType = invertedIndexContainer.lookUpTickets("type", "incident");
             Assert.assertEquals(searchResultByType.size(), 2);
             Assert.assertTrue(searchResultByType.contains(ticket1));
             Assert.assertTrue(searchResultByType.contains(ticket2));
 
             //on boolean field
-            List<Ticket> searchByHasIncidentTrue = invertedIndex.lookUpTickets("hasIncidents", "true");
+            List<Ticket> searchByHasIncidentTrue = invertedIndexContainer.lookUpTickets("hasIncidents", "true");
             Assert.assertEquals(searchByHasIncidentTrue.size(), 0);
 
-            List<Ticket> searchByHasIncidentFalse = invertedIndex.lookUpTickets("hasIncidents", "false");
+            List<Ticket> searchByHasIncidentFalse = invertedIndexContainer.lookUpTickets("hasIncidents", "false");
             Assert.assertEquals(searchByHasIncidentFalse.size(), 2);
             Assert.assertTrue(searchByHasIncidentFalse.contains(ticket1));
             Assert.assertTrue(searchByHasIncidentFalse.contains(ticket2));
 
             //on tags
-            List<Ticket> searchByTag = invertedIndex.lookUpTickets("tags", "Ohio");
+            List<Ticket> searchByTag = invertedIndexContainer.lookUpTickets("tags", "Ohio");
             Assert.assertEquals(searchByTag.size(), 1);
             Assert.assertTrue(searchByTag.contains(ticket1));
 
             //on empty tags
-            List<Ticket> searchByEmptyTag = invertedIndex.lookUpTickets("tags", "");
+            List<Ticket> searchByEmptyTag = invertedIndexContainer.lookUpTickets("tags", "");
             Assert.assertEquals(searchByEmptyTag.size(), 1);
             Assert.assertTrue(searchByEmptyTag.contains(ticket2));
 
             //on tags value not existed
-            List<Ticket> searchByNotExistedTagValue = invertedIndex.lookUpTickets("tags", "not-existed-tag");
+            List<Ticket> searchByNotExistedTagValue = invertedIndexContainer.lookUpTickets("tags", "not-existed-tag");
             Assert.assertEquals(searchByNotExistedTagValue.size(), 0);
 
             //on empty field
-            List<Ticket> searchOnEmpty = invertedIndex.lookUpTickets("externalId", "");
+            List<Ticket> searchOnEmpty = invertedIndexContainer.lookUpTickets("externalId", "");
             Assert.assertEquals(searchOnEmpty.size(), 1);
             Assert.assertTrue(searchOnEmpty.contains(ticket2));
 
             //on null field
-            List<Ticket> searchOnNull = invertedIndex.lookUpTickets("dueAt", "");
+            List<Ticket> searchOnNull = invertedIndexContainer.lookUpTickets("dueAt", "");
             Assert.assertEquals(searchOnNull.size(), 1);
             Assert.assertTrue(searchOnNull.contains(ticket2));
 
             //on value not found
-            List<Ticket> searchOnNotFound = invertedIndex.lookUpTickets("type", "what-type??");
+            List<Ticket> searchOnNotFound = invertedIndexContainer.lookUpTickets("type", "what-type??");
             Assert.assertEquals(searchOnNotFound.size(), 0);
 
             //on field name not existed
-            List<Ticket> searchOnInvalidFieldName = invertedIndex.lookUpTickets("invalidField", "whateverValue");
+            List<Ticket> searchOnInvalidFieldName = invertedIndexContainer.lookUpTickets("invalidField", "whateverValue");
             Assert.assertEquals(searchOnInvalidFieldName.size(), 0);
         } catch (Exception e) {
             e.printStackTrace();
