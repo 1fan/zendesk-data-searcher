@@ -6,8 +6,6 @@ import java.util.Collections;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
-import com.zendesk.datasearcher.util.FieldUtil;
-import com.zendesk.datasearcher.util.JsonFileReader;
 import org.mockito.Mockito;
 import org.springframework.core.env.Environment;
 
@@ -18,15 +16,6 @@ public class TestHelper {
         Mockito.when(mockEnv.getProperty(Mockito.eq("tickets.filepath"), Mockito.eq("tickets.json"))).thenReturn("tickets.json");
         Mockito.when(mockEnv.getProperty(Mockito.eq("organizations.filepath"), Mockito.eq("organizations.json"))).thenReturn("organizations.json");
         return mockEnv;
-    }
-
-    protected static InvertedIndexContainer getInvertedIndex(Environment env) {
-        InvertedIndexContainer invertedIndexContainer = new InvertedIndexContainer();
-        invertedIndexContainer.setEnv(env);
-        invertedIndexContainer.setJsonReader(new JsonFileReader());
-        invertedIndexContainer.setFieldUtil(new FieldUtil());
-
-        return invertedIndexContainer;
     }
 
     protected static User getUser1() {

@@ -3,17 +3,20 @@ package com.zendesk.datasearcher.searcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
 
 import com.zendesk.datasearcher.exception.InvalidFieldException;
+import com.zendesk.datasearcher.model.InvertedIndex;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.OrganizationResponse;
 import com.zendesk.datasearcher.model.response.TicketResponse;
 import com.zendesk.datasearcher.model.response.UserResponse;
+import com.zendesk.datasearcher.util.JsonFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,11 +24,48 @@ public class Searcher {
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private InvertedIndexContainer invertedIndexContainer;
+    private JsonFileReader jsonReader;
+    private Environment env;
+    private InvertedIndex<User> userInvertedIndex = null;
+    private InvertedIndex<Ticket> ticketInvertedIndex = null;
+    private InvertedIndex<Organization> organizationInvertedIndex = null;
 
-    @Autowired
-    public void setInvertedIndex(InvertedIndexContainer invertedIndexContainer) {
-        this.invertedIndexContainer = invertedIndexContainer;
+    public Searcher(Environment env, JsonFileReader jsonReader) {
+        this.env = env;
+        this.jsonReader = jsonReader;
+    }
+
+    /**
+     * Initialise the indexs.
+     *
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
+    @PostConstruct
+    public void initIndexes() throws IOException, InvalidFieldException {
+        System.out.println("*** Loading and Processing File... ***");
+        setUpUserIndex();
+        setUpOrganizationIndex();
+        setUpTicketIndex();
+        System.out.println("*** Ready to search! ***");
+    }
+
+    private void setUpUserIndex() throws IOException, InvalidFieldException {
+        String usersFilePath = env.getProperty("users.filepath", "users.json");
+        List<User> users = jsonReader.parseJson(usersFilePath, User.class);
+        this.userInvertedIndex = new InvertedIndex(users);
+    }
+
+    private void setUpOrganizationIndex() throws IOException, InvalidFieldException {
+        String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
+        List<Organization> organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
+        this.organizationInvertedIndex = new InvertedIndex(organizations);
+    }
+
+    private void setUpTicketIndex() throws IOException, InvalidFieldException {
+        String ticketFilePath = env.getProperty("tickets.filepath", "tickets.json");
+        List<Ticket> tickets = jsonReader.parseJson(ticketFilePath, Ticket.class);
+        this.ticketInvertedIndex = new InvertedIndex(tickets);
     }
 
     /**
@@ -34,12 +74,10 @@ public class Searcher {
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link Ticket} class field name.
      * @param fieldValue the value of the field name.
      * @return a List of {@link TicketResponse} that satisfy the search criteria.
-     * @throws IOException           when failed to parse JSON file
-     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
      */
-    public List<TicketResponse> searchByTickets(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
+    public List<TicketResponse> searchByTickets(String fieldName, String fieldValue) {
         List<TicketResponse> ticketResponses = new ArrayList<>();
-        List<Ticket> tickets = invertedIndexContainer.lookUpTickets(fieldName, fieldValue);
+        List<Ticket> tickets = ticketInvertedIndex.lookUp(fieldName, fieldValue);
         if (tickets == null || tickets.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -67,13 +105,11 @@ public class Searcher {
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link Organization} class field name.
      * @param fieldValue the value of the field name.
      * @return a List of {@link OrganizationResponse} that satisfy the search criteria.
-     * @throws IOException           when failed to parse JSON file
-     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
      */
-    public List<OrganizationResponse> searchByOrganizations(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
+    public List<OrganizationResponse> searchByOrganizations(String fieldName, String fieldValue) {
         List<OrganizationResponse> orgResponses = new ArrayList<>();
 
-        List<Organization> organizations = invertedIndexContainer.lookUpOrganizations(fieldName, fieldValue);
+        List<Organization> organizations = organizationInvertedIndex.lookUp(fieldName, fieldValue);
         if (organizations == null || organizations.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -84,9 +120,9 @@ public class Searcher {
                 OrganizationResponse orgRsp = new OrganizationResponse();
                 orgRsp.setOrganization(org);
                 //related users
-                orgRsp.setOrgUsers(invertedIndexContainer.lookUpUser("organizationId", org.getId()));
+                orgRsp.setOrgUsers(userInvertedIndex.lookUp("organizationId", org.getId()));
                 //related tickets
-                orgRsp.setOrgTickets(invertedIndexContainer.lookUpTickets("organizationId", org.getId()));
+                orgRsp.setOrgTickets(ticketInvertedIndex.lookUp("organizationId", org.getId()));
                 orgResponses.add(orgRsp);
             }
         }
@@ -99,13 +135,11 @@ public class Searcher {
      * @param fieldName  the field name to search on. This field name should be consistent with the {@link User} class field name.
      * @param fieldValue the value of the field name.
      * @return a List of {@link UserResponse} that satisfy the search criteria.
-     * @throws IOException           when failed to parse JSON file
-     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
      */
-    public List<UserResponse> searchByUsers(String fieldName, String fieldValue) throws IOException, InvalidFieldException {
+    public List<UserResponse> searchByUsers(String fieldName, String fieldValue) {
         List<UserResponse> userResponses = new ArrayList<>();
 
-        List<User> users = invertedIndexContainer.lookUpUser(fieldName, fieldValue);
+        List<User> users = userInvertedIndex.lookUp(fieldName, fieldValue);
         if (users == null || users.size() == 0) {
             //not found
             logger.info(String.format("No available data for searched term %s with value '%s'.", fieldName, fieldValue));
@@ -118,9 +152,9 @@ public class Searcher {
                 //related org
                 userResponse.setUserOrganization(getOrganizationWithId(user.getOrganizationId()));
                 //related tickets - submitted by the user
-                userResponse.setSubmittedTickets(invertedIndexContainer.lookUpTickets("submitterId", user.getId()));
+                userResponse.setSubmittedTickets(ticketInvertedIndex.lookUp("submitterId", user.getId()));
                 //related tickets - assigned by the user
-                userResponse.setAssignedTickets(invertedIndexContainer.lookUpTickets("assigneeId", user.getId()));
+                userResponse.setAssignedTickets(ticketInvertedIndex.lookUp("assigneeId", user.getId()));
                 userResponses.add(userResponse);
             }
         }
@@ -128,8 +162,8 @@ public class Searcher {
     }
 
     //search User by '_id' field
-    private User getUserWithId(String id) throws IOException, InvalidFieldException {
-        List<User> results = invertedIndexContainer.lookUpUser("id", id);
+    private User getUserWithId(String id) {
+        List<User> results = userInvertedIndex.lookUp("id", id);
         if (results == null || results.isEmpty()) {
             return null;
         } else {
@@ -139,8 +173,8 @@ public class Searcher {
     }
 
     //search Organization by '_id' field
-    private Organization getOrganizationWithId(String id) throws IOException, InvalidFieldException {
-        List<Organization> orgs = invertedIndexContainer.lookUpOrganizations("id", id);
+    private Organization getOrganizationWithId(String id) {
+        List<Organization> orgs = organizationInvertedIndex.lookUp("id", id);
         if (orgs == null || orgs.isEmpty()) {
             return null;
         } else {

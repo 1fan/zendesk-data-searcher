@@ -62,7 +62,7 @@ Therefore, we can draw the conclusion that once the index has been built, search
 
 I used the Eclipse Memory Analyzer tool to acquire the Heap Dump and then analysis the dump file.
 
-The `com.zendesk.datasearcher.searcher.InvertedIndex` takes the most memory, as shown in the top consumers pie chart:
+The `com.zendesk.datasearcher.model.InvertedIndex` takes the most memory, as shown in the top consumers pie chart:
 ![Biggest Objects](screenshot/performance/top-consumers.png?raw=true)
 
 According to the dominant tree, 99.74% of the memory was allocated to the inverted index, the 3 big HashMap (which are the index for 3 data

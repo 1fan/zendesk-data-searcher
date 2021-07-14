@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 //The User, Ticket and Organization are equivalent classes - thus it's okay to take User as a sample.
 public class FieldUtilTest {
-    FieldUtil fieldUtil = new FieldUtil();
     Field idField = FieldUtils.getField(User.class, "id", true);
     Field createdAtField = FieldUtils.getField(User.class, "createdAt", true);
     Field tagsField = FieldUtils.getField(User.class, "tags", true);
@@ -35,24 +34,24 @@ public class FieldUtilTest {
 
     @Test
     void shouldConvertTextFromSnakeToCamel() {
-        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("_id"), "id");
-        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("submitter_id"), "submitterId");
-        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("assignee_id"), "assigneeId");
-        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase("description"), "description");
-        Assert.assertEquals(fieldUtil.converSnakeCaseToCamelCase(""), "");
+        Assert.assertEquals(FieldUtil.converSnakeCaseToCamelCase("_id"), "id");
+        Assert.assertEquals(FieldUtil.converSnakeCaseToCamelCase("submitter_id"), "submitterId");
+        Assert.assertEquals(FieldUtil.converSnakeCaseToCamelCase("assignee_id"), "assigneeId");
+        Assert.assertEquals(FieldUtil.converSnakeCaseToCamelCase("description"), "description");
+        Assert.assertEquals(FieldUtil.converSnakeCaseToCamelCase(""), "");
     }
 
     @Test
     void shouldConvertTextFromCamelToSnake() {
-        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("id"), "_id");
-        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("submitterId"), "submitter_id");
-        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase("assigneeId"), "assignee_id");
-        Assert.assertEquals(fieldUtil.convertCamelCaseToSnakeCase(""), "");
+        Assert.assertEquals(FieldUtil.convertCamelCaseToSnakeCase("id"), "_id");
+        Assert.assertEquals(FieldUtil.convertCamelCaseToSnakeCase("submitterId"), "submitter_id");
+        Assert.assertEquals(FieldUtil.convertCamelCaseToSnakeCase("assigneeId"), "assignee_id");
+        Assert.assertEquals(FieldUtil.convertCamelCaseToSnakeCase(""), "");
     }
 
     @Test
-    void shouldGetAllFieldsOfClassIncludeParentFields() throws NoSuchFieldException {
-        List<Field> fields = fieldUtil.getFieldsOfClass(User.class);
+    void shouldGetAllFieldsOfClassIncludeParentFields() {
+        List<Field> fields = FieldUtil.getFieldsOfClass(User.class);
         Assert.assertEquals(fields.size(), 19);
         //The field id,createdAt, tags, externalId and url are in the AbstractEntity class.
         Assert.assertTrue(fields.contains(idField));
@@ -78,8 +77,8 @@ public class FieldUtilTest {
     }
 
     @Test
-    void shouldGetAllFieldsOfClassInStringIncludeParentFields() throws NoSuchFieldException {
-        List<String> fields = fieldUtil.getFieldNamesInStringOfClass(User.class);
+    void shouldGetAllFieldsOfClassInStringIncludeParentFields() {
+        List<String> fields = FieldUtil.getFieldNamesInStringOfClass(User.class);
         Assert.assertEquals(fields.size(), 19);
         //The field id,createdAt, tags, externalId and url are in the AbstractEntity class.
         Assert.assertTrue(fields.contains("_id"));
@@ -110,22 +109,22 @@ public class FieldUtilTest {
         try {
             //id
             user.setId("user_id");
-            Assert.assertEquals(fieldUtil.readFiledValue(idField, user), "user_id");
+            Assert.assertEquals(FieldUtil.readFiledValue(idField, user), "user_id");
             //boolean
             user.setActive(true);
-            Assert.assertEquals(fieldUtil.readFiledValue(activeField, user), true);
+            Assert.assertEquals(FieldUtil.readFiledValue(activeField, user), true);
             //string
             user.setAlias("alias");
-            Assert.assertEquals(fieldUtil.readFiledValue(aliasField, user), "alias");
+            Assert.assertEquals(FieldUtil.readFiledValue(aliasField, user), "alias");
             //Normal list
             user.setTags(Arrays.asList("tag1", "tag2", "tag3"));
-            Assert.assertEquals(fieldUtil.readFiledValue(tagsField, user), Arrays.asList("tag1", "tag2", "tag3"));
+            Assert.assertEquals(FieldUtil.readFiledValue(tagsField, user), Arrays.asList("tag1", "tag2", "tag3"));
             //Null list
             user.setTags(null);
-            Assert.assertEquals(fieldUtil.readFiledValue(tagsField, user), null);
+            Assert.assertEquals(FieldUtil.readFiledValue(tagsField, user), null);
             //empty list
             user.setTags(new ArrayList<>());
-            Assert.assertEquals(fieldUtil.readFiledValue(tagsField, user), new ArrayList<>());
+            Assert.assertEquals(FieldUtil.readFiledValue(tagsField, user), new ArrayList<>());
         } catch (Exception e) {
             Assert.fail();
         }

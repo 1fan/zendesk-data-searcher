@@ -23,13 +23,7 @@ import org.springframework.stereotype.Component;
 public class ConsoleHelper {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Scanner scanner = new Scanner(System.in);
-    private FieldUtil fieldUtil;
     private Searcher searcher;
-
-    @Autowired
-    public void setFieldUtil(FieldUtil fieldUtil) {
-        this.fieldUtil = fieldUtil;
-    }
 
     @Autowired
     public void setSearcher(Searcher searcher) {
@@ -53,17 +47,17 @@ public class ConsoleHelper {
     public void printSearchableFields() {
         System.out.println("---------------------------------------");
         System.out.println("Search Users with:");
-        for (String field : fieldUtil.getFieldNamesInStringOfClass(User.class)) {
+        for (String field : FieldUtil.getFieldNamesInStringOfClass(User.class)) {
             System.out.println(field);
         }
         System.out.println("---------------------------------------");
         System.out.println("Search Tickets with:");
-        for (String field : fieldUtil.getFieldNamesInStringOfClass(Ticket.class)) {
+        for (String field : FieldUtil.getFieldNamesInStringOfClass(Ticket.class)) {
             System.out.println(field);
         }
         System.out.println("---------------------------------------");
         System.out.println("Search Organizations with:");
-        for (String field : fieldUtil.getFieldNamesInStringOfClass(Organization.class)) {
+        for (String field : FieldUtil.getFieldNamesInStringOfClass(Organization.class)) {
             System.out.println(field);
         }
     }
@@ -78,11 +72,11 @@ public class ConsoleHelper {
     public void handleDataSearchInput() throws InvalidInputException, IOException, InvalidFieldException {
         System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
         Class searchDataSet = handleSearchDataSetInput();
-        List<String> fields = fieldUtil.getFieldNamesInStringOfClass(searchDataSet);
+        List<String> fields = FieldUtil.getFieldNamesInStringOfClass(searchDataSet);
 
         System.out.println("Enter search term");
         String searchTerm = handleSearchTermInput(searchDataSet.getSimpleName(), fields);
-        String fieldName = fieldUtil.converSnakeCaseToCamelCase(searchTerm);
+        String fieldName = FieldUtil.converSnakeCaseToCamelCase(searchTerm);
 
         System.out.println("Enter search value");
         String searchValue = scanner.nextLine();

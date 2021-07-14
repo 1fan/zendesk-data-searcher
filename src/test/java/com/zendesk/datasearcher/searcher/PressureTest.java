@@ -9,9 +9,11 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zendesk.datasearcher.exception.InvalidFieldException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
+import com.zendesk.datasearcher.util.JsonFileReader;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.mockito.Mockito;
@@ -22,11 +24,11 @@ import org.testng.annotations.Test;
 
 public class PressureTest {
 
+    Searcher searcher;
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    Searcher searcher = new Searcher();
 
     @BeforeMethod
-    void init() throws IOException, InterruptedException {
+    void init() throws IOException, InvalidFieldException {
         String basePath = "./src/test/resources/";
         String userFileName = "pressure-test-users.json";
         String ticketFileName = "pressure-test-tickets.json";
@@ -41,8 +43,8 @@ public class PressureTest {
         Mockito.when(env.getProperty(Mockito.eq("tickets.filepath"), Mockito.eq("tickets.json"))).thenReturn(ticketFileName);
         Mockito.when(env.getProperty(Mockito.eq("organizations.filepath"), Mockito.eq("organizations.json"))).thenReturn(organizationFileName);
 
-        InvertedIndexContainer index = TestHelper.getInvertedIndex(env);
-        searcher.setInvertedIndex(index);
+        searcher = new Searcher(env, new JsonFileReader());
+        searcher.initIndexes();
     }
 
     private List<String> generateListOfRandomString(int len) {
@@ -55,7 +57,7 @@ public class PressureTest {
 
     private void generateUserFile(String fileName, int num) throws IOException {
         if (new File(fileName).exists()) {
-            System.out.println(String.format("File %s existed, will skip.", fileName));
+            System.out.printf("File %s existed, will skip.%n", fileName);
             return;
         }
         List<User> fakeUsers = new ArrayList<>();
@@ -93,7 +95,7 @@ public class PressureTest {
 
     private void generateTicketFile(String fileName, int num) throws IOException {
         if (new File(fileName).exists()) {
-            System.out.println(String.format("File %s existed, will skip.", fileName));
+            System.out.printf("File %s existed, will skip.%n", fileName);
             return;
         }
         List<Ticket> fakeTickets = new ArrayList<>();
@@ -123,7 +125,7 @@ public class PressureTest {
 
     private void generateOrganizationFile(String fileName, int num) throws IOException {
         if (new File(fileName).exists()) {
-            System.out.println(String.format("File %s existed, will skip.", fileName));
+            System.out.printf("File %s existed, will skip.%n", fileName);
             return;
         }
         List<Organization> fakeOrganizations = new ArrayList<>();
@@ -145,7 +147,7 @@ public class PressureTest {
     }
 
     @Test(enabled = false)
-    void pressureTest() {
+    void shouldHandleSearchOnBigDataSource() {
         try {
             searcher.searchByUsers("_id", "100");
             searcher.searchByUsers("external_id", "c9995ea4-ff72-46e0-ab77-dfe0ae1ef6c2");

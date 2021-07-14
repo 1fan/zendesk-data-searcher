@@ -1,13 +1,16 @@
 package com.zendesk.datasearcher.searcher;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.zendesk.datasearcher.exception.InvalidFieldException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
 import com.zendesk.datasearcher.model.entity.User;
 import com.zendesk.datasearcher.model.response.OrganizationResponse;
 import com.zendesk.datasearcher.model.response.TicketResponse;
 import com.zendesk.datasearcher.model.response.UserResponse;
+import com.zendesk.datasearcher.util.JsonFileReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -22,9 +25,11 @@ public class SearcherTest {
     private Organization organization2;
 
     @BeforeMethod
-    void setUp() {
-        searcher = new Searcher();
-        searcher.setInvertedIndex(TestHelper.getInvertedIndex(TestHelper.getMockEnv()));
+    void setUp() throws IOException, InvalidFieldException {
+        searcher = new Searcher(TestHelper.getMockEnv(), new JsonFileReader());
+
+        //post construct
+        searcher.initIndexes();
 
         user1 = TestHelper.getUser1();
         user2 = TestHelper.getUser2();
@@ -35,7 +40,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct User can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Tickets and Organization can be fetched.
+     * We have tested that the correct User can be searched by field in {@link InvertedIndexTest}, now we want to test if related Tickets and Organization can be fetched.
      * For User1:
      * - should return with related organization id="119"
      * - should return with related submitted ticket id="436bf9b0-1147-4c0a-8439-6f79833bff5b"
@@ -59,7 +64,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct User can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Tickets and Organization can be fetched.
+     * We have tested that the correct User can be searched by field in {@link InvertedIndexTest}, now we want to test if related Tickets and Organization can be fetched.
      * For User2:
      * - should return with related organization id="120"
      * - should return with related submitted ticket id="1a227508-9f39-427c-8f57-1b72f3fab87c"
@@ -83,7 +88,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct User can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Users and Organization can be fetched.
+     * We have tested that the correct User can be searched by field in {@link InvertedIndexTest}, now we want to test if related Users and Organization can be fetched.
      * For Ticket1:
      * - should return with related organization id="119"
      * - should return with related submitted user id="1"
@@ -105,7 +110,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct User can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Users and Organization can be fetched.
+     * We have tested that the correct User can be searched by field in {@link InvertedIndexTest}, now we want to test if related Users and Organization can be fetched.
      * For Ticket2:
      * - should return with related organization id="120"
      * - should return with related submitted user id="2"
@@ -127,7 +132,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct Organization can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Users and Tickets can be fetched.
+     * We have tested that the correct Organization can be searched by field in {@link InvertedIndexTest}, now we want to test if related Users and Tickets can be fetched.
      * For Organization1:
      * - should return with related ticket id="436bf9b0-1147-4c0a-8439-6f79833bff5b"
      * - should return with related user id="1"
@@ -149,7 +154,7 @@ public class SearcherTest {
     }
 
     /**
-     * We have tested that the correct Organization can be searched by field in {@link InvertedIndexContainerTest}, now we want to test if related Users and Tickets can be fetched.
+     * We have tested that the correct Organization can be searched by field in {@link InvertedIndexTest}, now we want to test if related Users and Tickets can be fetched.
      * For Organization2:
      * - should return with related ticket id="1a227508-9f39-427c-8f57-1b72f3fab87c"
      * - should return with related user id="2"

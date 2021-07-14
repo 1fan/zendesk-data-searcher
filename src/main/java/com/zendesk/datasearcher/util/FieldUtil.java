@@ -7,9 +7,7 @@ import java.util.List;
 import com.zendesk.datasearcher.exception.InvalidFieldException;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.text.CaseUtils;
-import org.springframework.stereotype.Service;
 
-@Service
 public class FieldUtil {
 
     /**
@@ -18,7 +16,7 @@ public class FieldUtil {
      * @param cls fields to read from
      * @return List of {@link Field} of the given class
      */
-    public List<Field> getFieldsOfClass(Class cls) {
+    public static List<Field> getFieldsOfClass(Class cls) {
         List<Field> fields = new ArrayList<>();
         for (Field field : FieldUtils.getAllFieldsList(cls)) {
             field.setAccessible(true);
@@ -33,7 +31,7 @@ public class FieldUtil {
      * @param cls fields to read from
      * @return a List of field name in String.
      */
-    public List<String> getFieldNamesInStringOfClass(Class cls) {
+    public static List<String> getFieldNamesInStringOfClass(Class cls) {
         List<String> fields = new ArrayList<>();
         for (Field field : FieldUtils.getAllFieldsList(cls)) {
             field.setAccessible(true);
@@ -50,7 +48,7 @@ public class FieldUtil {
      * @return The value of the given field
      * @throws InvalidFieldException if failed to read field's value from the object
      */
-    public Object readFiledValue(Field field, Object obj) throws InvalidFieldException {
+    public static Object readFiledValue(Field field, Object obj) throws InvalidFieldException {
         try {
             return FieldUtils.readField(field, obj, true);
         } catch (Exception e) {
@@ -64,7 +62,7 @@ public class FieldUtil {
      * @param snakeCaseText the text in snake case.
      * @return the converted camel case text. Return null if the input is null.
      */
-    public String converSnakeCaseToCamelCase(String snakeCaseText) {
+    public static String converSnakeCaseToCamelCase(String snakeCaseText) {
         if (snakeCaseText != null) {
             return CaseUtils.toCamelCase(snakeCaseText, false, '_');
         } else {
@@ -78,7 +76,7 @@ public class FieldUtil {
      * @param camelCaseText the text in camel case.
      * @return the converted snake case text.
      */
-    public String convertCamelCaseToSnakeCase(String camelCaseText) {
+    public static String convertCamelCaseToSnakeCase(String camelCaseText) {
         if (camelCaseText == null) {
             return null;
         }
