@@ -22,27 +22,27 @@ public class InvertedIndex<T extends AbstractEntity> {
             T element = elements.get(i);
             List<Field> fields = FieldUtil.getFieldsOfClass(element.getClass());
             for (Field field : fields) {
-                Map<String, List<Integer>> termStat = index.getOrDefault(field.getName(), new HashMap<>());
+                Map<String, List<Integer>> fieldStatistics = index.getOrDefault(field.getName(), new HashMap<>());
                 Object fieldValue = FieldUtil.readFiledValue(field, element);
                 if (fieldValue instanceof String) {
-                    updateFieldStatisticsWithValue((String) fieldValue, termStat, i);
+                    updateFieldStatisticsWithValue((String) fieldValue, fieldStatistics, i);
                 } else if (fieldValue instanceof Boolean) {
-                    updateFieldStatisticsWithValue(fieldValue.toString(), termStat, i);
+                    updateFieldStatisticsWithValue(fieldValue.toString(), fieldStatistics, i);
                 } else if (fieldValue instanceof List) {
                     //could be tags, domainNames, etc
                     if (((List<?>) fieldValue).isEmpty()) {
-                        updateFieldStatisticsWithValue("", termStat, i);
+                        updateFieldStatisticsWithValue("", fieldStatistics, i);
                     }
                     for (String s : (List<String>) fieldValue) {
-                        updateFieldStatisticsWithValue(s, termStat, i);
+                        updateFieldStatisticsWithValue(s, fieldStatistics, i);
                     }
                 } else if (fieldValue == null) {
-                    updateFieldStatisticsWithValue("", termStat, i);
+                    updateFieldStatisticsWithValue("", fieldStatistics, i);
                 } else {
                     //field type not supported yet
                     throw new InvalidFieldException(String.format("Field %s of class %s is not supported. Currently only String, Integer, Boolean and List are supported.", field.getName(), element.getClass()));
                 }
-                index.put(field.getName(), termStat);
+                index.put(field.getName(), fieldStatistics);
             }
         }
     }
