@@ -25,7 +25,7 @@ public class SearcherTest {
     private Organization organization2;
 
     @BeforeMethod
-    void setUp() throws IOException, InvalidFieldException {
+    void setUp() throws Exception {
         searcher = new Searcher(TestHelper.getMockEnv(), new JsonFileReader());
 
         //post construct

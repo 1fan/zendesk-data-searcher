@@ -28,7 +28,7 @@ public class PressureTest {
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @BeforeMethod
-    void init() throws IOException, InvalidFieldException {
+    void init() throws Exception {
         String basePath = "./src/test/resources/";
         String userFileName = "pressure-test-users.json";
         String ticketFileName = "pressure-test-tickets.json";

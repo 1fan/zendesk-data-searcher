@@ -39,7 +39,7 @@ public class InvertedIndexTest {
 
         String usersFilePath = env.getProperty("users.filepath", "users.json");
         List<User> users = jsonReader.parseJson(usersFilePath, User.class);
-        this.userIndex = new InvertedIndex(users);
+        this.userIndex = new InvertedIndex<>(users);
 
         String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
         List<Organization> organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
@@ -47,7 +47,7 @@ public class InvertedIndexTest {
 
         String ticketFilePath = env.getProperty("tickets.filepath", "tickets.json");
         List<Ticket> tickets = jsonReader.parseJson(ticketFilePath, Ticket.class);
-        this.ticketIndex = new InvertedIndex(tickets);
+        this.ticketIndex = new InvertedIndex<>(tickets);
 
     }
 

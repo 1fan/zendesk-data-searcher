@@ -1,10 +1,8 @@
 package com.zendesk.datasearcher.util;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
-import com.zendesk.datasearcher.exception.InvalidFieldException;
 import com.zendesk.datasearcher.exception.InvalidInputException;
 import com.zendesk.datasearcher.model.entity.Organization;
 import com.zendesk.datasearcher.model.entity.Ticket;
@@ -66,10 +64,8 @@ public class ConsoleHelper {
      * Display console instructions and handle user input to perform the search.
      *
      * @throws InvalidInputException if user input is invalid
-     * @throws IOException           if failed to read or parse the file
-     * @throws InvalidFieldException if the field type is not supported or failed to read field's value from object
      */
-    public void handleDataSearchInput() throws InvalidInputException, IOException, InvalidFieldException {
+    public void handleDataSearchInput() throws InvalidInputException {
         System.out.println("Select 1) Users or 2) Tickets or 3) Organizations");
         Class searchDataSet = handleSearchDataSetInput();
         List<String> fields = FieldUtil.getFieldNamesInStringOfClass(searchDataSet);

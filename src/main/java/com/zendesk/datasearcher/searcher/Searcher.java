@@ -36,36 +36,56 @@ public class Searcher {
     }
 
     /**
-     * Initialise the indexs.
+     * Initialise the indexes.
+     */
+    @PostConstruct
+    public void initIndexes() throws Exception {
+        try {
+            System.out.println("*** Loading and Processing Files... ***");
+            setUpUserIndex();
+            setUpOrganizationIndex();
+            setUpTicketIndex();
+            System.out.println("*** Ready to search! ***");
+        } catch (Exception e) {
+            System.out.println("Application load failed, please check logs for detailed reason, or contact yifanwanghit@gmail.com for supports");
+            throw e;
+        }
+    }
+
+    /**
+     * build User index based on User json file.
      *
      * @throws IOException           when failed to parse JSON file
      * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
      */
-    @PostConstruct
-    public void initIndexes() throws IOException, InvalidFieldException {
-        System.out.println("*** Loading and Processing File... ***");
-        setUpUserIndex();
-        setUpOrganizationIndex();
-        setUpTicketIndex();
-        System.out.println("*** Ready to search! ***");
-    }
-
     private void setUpUserIndex() throws IOException, InvalidFieldException {
         String usersFilePath = env.getProperty("users.filepath", "users.json");
         List<User> users = jsonReader.parseJson(usersFilePath, User.class);
-        this.userInvertedIndex = new InvertedIndex(users);
+        this.userInvertedIndex = new InvertedIndex<>(users);
     }
 
+    /**
+     * build Organization index based on Organization json file.
+     *
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
     private void setUpOrganizationIndex() throws IOException, InvalidFieldException {
         String organizationsFilePath = env.getProperty("organizations.filepath", "organizations.json");
         List<Organization> organizations = jsonReader.parseJson(organizationsFilePath, Organization.class);
-        this.organizationInvertedIndex = new InvertedIndex(organizations);
+        this.organizationInvertedIndex = new InvertedIndex<>(organizations);
     }
 
+    /**
+     * build Ticket index based on Ticket json file.
+     *
+     * @throws IOException           when failed to parse JSON file
+     * @throws InvalidFieldException when a field type is not supported, or failed to read a field value from the entity.
+     */
     private void setUpTicketIndex() throws IOException, InvalidFieldException {
         String ticketFilePath = env.getProperty("tickets.filepath", "tickets.json");
         List<Ticket> tickets = jsonReader.parseJson(ticketFilePath, Ticket.class);
-        this.ticketInvertedIndex = new InvertedIndex(tickets);
+        this.ticketInvertedIndex = new InvertedIndex<>(tickets);
     }
 
     /**
